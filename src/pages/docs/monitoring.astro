@@ -1,0 +1,26 @@
+---
+import Docs from '../../layouts/Docs.astro';
+---
+<Docs title="Request monitoring" description="See every request of an iOS Simulator app with headers, bodies, timing and a JSON tree, search with filters, export HAR, and use the mini monitor.">
+  <h2>Simulator apps</h2>
+  <p>For apps in the iOS Simulator, Lagsmith shows each request’s method, URL, status, timing, headers, request and response bodies and query parameters, with a JSON tree view and image previews on hover. No certificates and no proxy settings.</p>
+  <h2>Mac apps</h2>
+  <p>For Mac apps, Lagsmith shows connections, DNS lookups and TLS details.</p>
+  <h2>Search filters</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Filter</th><th>Shows</th></tr></thead>
+    <tbody>
+      <tr><td><code>status:4xx</code></td><td>Responses with a 4xx status</td></tr>
+      <tr><td><code>method:POST</code></td><td>POST requests</td></tr>
+      <tr><td><code>host:api</code></td><td>Hosts containing “api”</td></tr>
+      <tr><td><code>is:failed</code></td><td>Requests that failed</td></tr>
+      <tr><td><code>-host:cdn</code></td><td>Everything except hosts containing “cdn”</td></tr>
+    </tbody>
+  </table></div>
+  <h2>HAR export</h2>
+  <p>Export requests as a HAR file, which opens in Proxyman, Charles and browser developer tools.</p>
+  <h2>Mini monitor</h2>
+  <p>A small floating window beside the simulator that shows the app’s network and its latest requests.</p>
+  <h2>Privacy</h2>
+  <p>Everything stays on your Mac.</p>
+</Docs>

@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro';
+import NlcTable from '../components/NlcTable.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'Is Lagsmith a replacement for Network Link Conditioner?', a: 'For per-app testing, yes. Lagsmith has the same presets by the same names, applied to one app instead of the whole Mac. If you want to slow down the entire Mac on purpose, Network Link Conditioner still does that well.' },
+  { q: 'Can I keep Network Link Conditioner installed?', a: 'Yes. They are separate tools. Just remember that if Network Link Conditioner is on, it slows down everything, including apps Lagsmith leaves alone.' },
+  { q: 'Can Network Link Conditioner throttle only the iOS Simulator?', a: 'No. Network Link Conditioner on the Mac applies to the whole Mac, so it slows down every simulator app and every other app at the same time. Lagsmith can throttle a single app in a single simulator device.' },
+  { q: 'Does Lagsmith work on a real iPhone?', a: 'Lagsmith works on Mac apps and apps in the iOS Simulator. On a physical iPhone, use Network Link Conditioner in Settings › Developer.' },
+];
+---
+<Base
+  title="Network Link Conditioner alternative for Mac and iOS Simulator"
+  description="Looking for a Network Link Conditioner alternative? Lagsmith throttles one app at a time, including iOS Simulator apps, with Airplane Mode, failures, request monitoring and automation."
+  breadcrumbs={[{ name: 'Network Link Conditioner alternative', href: '/network-link-conditioner-alternative' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>A Network Link Conditioner alternative that works per app</h1>
+      <p class="lead">Apple’s Network Link Conditioner slows down your whole Mac. Lagsmith is a Network Link Conditioner alternative that slows down only the app you are testing, including a single app in the iOS Simulator, and adds the failures and visibility that bad-network testing needs.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2 style="margin-top: 0">Side by side</h2>
+      <NlcTable />
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">When Network Link Conditioner is enough</h2>
+      <p>Network Link Conditioner is a good, free tool from Apple. It is the right choice when:</p>
+      <ul>
+        <li>You want the whole Mac to be slow, for example to feel how a website loads on 3G.</li>
+        <li>You are testing on a physical iPhone or iPad, where it is built into Settings › Developer.</li>
+        <li>Bandwidth, latency and packet loss are all you need, and you don’t mind everything else slowing down while you test.</li>
+      </ul>
+
+      <h2>When you need Lagsmith</h2>
+      <h3>You want to keep working while you test</h3>
+      <p>With Network Link Conditioner on, your browser, Slack, Xcode downloads and your AI coding agent all crawl. Lagsmith throttles only the app you pick, so everything else stays at full speed.</p>
+      <h3>You test in the iOS Simulator</h3>
+      <p>Lagsmith throttles one simulator app, or even one app on one simulator device while the same app on another device runs normally. <a href="/throttle-ios-simulator">How to throttle the iOS Simulator</a>.</p>
+      <h3>You need failures, not just slowness</h3>
+      <p>Airplane Mode for one app, refused connections, time-outs, dropped connections and outages that come and go. In the simulator, Airplane Mode behaves like a real device: requests fail with “The Internet connection appears to be offline” and NWPathMonitor reports no network. <a href="/simulate-airplane-mode-ios-simulator">Airplane Mode in the iOS Simulator</a>.</p>
+      <h3>You need to break one endpoint</h3>
+      <p>Fail, delay or mock a single API endpoint while the rest of the app works. <a href="/mock-api-ios-simulator">Mock an API in the iOS Simulator</a>.</p>
+      <h3>You want to see what the app is doing</h3>
+      <p>Lagsmith shows every request of a simulator app with headers, bodies, timing, a JSON tree and image previews, with no certificates or proxy settings.</p>
+      <h3>You want it in tests and CI</h3>
+      <p>Set the network from an XCTest UI test, the <code>ivar</code> command line tool, <code>lagsmith://</code> links, a local HTTP API or the MCP server for AI agents. <a href="/docs/automation">Automation docs</a>.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Moving from Network Link Conditioner</h2>
+      <p>Your Network Link Conditioner presets are all here, by the same names: Edge, 3G, DSL, LTE, WiFi, Very Bad Network and 100% Loss. Pick one for an app, or start from one and save your own custom preset with different bandwidth, latency, jitter or packet loss.</p>
+      <ol class="steps">
+        <li>Turn Network Link Conditioner off in System Settings so it doesn’t slow down the whole Mac.</li>
+        <li><a href="/download">Download Lagsmith</a> and allow its network extension when macOS asks. <a href="/docs/getting-started">Getting started</a>.</li>
+        <li>Click the Lagsmith menu bar icon, pick the app you are testing, and choose the same preset you used before.</li>
+      </ol>
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <Cta />
+</Base>

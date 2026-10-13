@@ -1,0 +1,16 @@
+---
+import Docs from '../../layouts/Docs.astro';
+---
+<Docs title="Automation" description="Control Lagsmith from XCTest UI tests, the ivar command line tool, lagsmith:// links and a local HTTP API.">
+  <p>Everything you can do from the menu bar you can also do from tests and scripts, so slow-network and offline tests can run in CI.</p>
+  <h2>XCTest UI test helper</h2>
+  <p>Set an app’s network from a UI test before launching the app, so each test starts on the conditions it needs.</p>
+  <h2>Command line: <code>ivar</code></h2>
+  <p>The <code>ivar</code> command line tool controls Lagsmith from the terminal and from CI scripts.</p>
+  <h2>URL scheme: <code>lagsmith://</code></h2>
+  <p>Open <code>lagsmith://</code> links to control Lagsmith from anywhere that can open a URL.</p>
+  <h2>HTTP API</h2>
+  <p>Lagsmith serves a local HTTP API on <code>127.0.0.1</code>, only reachable from your Mac.</p>
+  <h2>AI agents</h2>
+  <p>AI coding agents can use the built-in MCP server. <a href="/docs/mcp">MCP setup</a>.</p>
+</Docs>

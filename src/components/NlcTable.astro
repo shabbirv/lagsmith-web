@@ -1,0 +1,19 @@
+---
+const rows = [
+  ['What it slows', 'The whole Mac: your browser, Slack, Xcode downloads, your AI agent, everything', 'Only the apps you choose'],
+  ['iOS Simulator', 'Throttles the whole Mac, so every simulator app and everything else too', 'Per simulator app, even per simulator device'],
+  ['How you get it', 'Separate "Additional Tools for Xcode" download from Apple’s developer site, installed as a System Settings pane', 'A normal Mac app with a menu bar icon'],
+  ['Failures', 'Packet loss and bandwidth/latency only', 'Airplane Mode, refused connections, time-outs, dropped connections, outages that come and go'],
+  ['Failing one endpoint', 'No', 'Fail, delay or mock a single API endpoint while the rest works'],
+  ['Seeing requests', 'No', 'Every request of a simulator app: URL, headers, bodies, timing, JSON tree, image previews'],
+  ['Automation', 'No', 'UI test helper, command line, URL scheme, local HTTP API, MCP server for AI agents'],
+];
+---
+<div class="table-wrap">
+  <table class="table-compare">
+    <thead><tr><th></th><th>Apple’s Network Link Conditioner</th><th>Lagsmith</th></tr></thead>
+    <tbody>
+      {rows.map(([k, a, b]) => <tr><td>{k}</td><td>{a}</td><td>{b}</td></tr>)}
+    </tbody>
+  </table>
+</div>

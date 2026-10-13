@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { SITE } from '../config';
+import PriceTag from '../components/PriceTag.astro';
+import { currentPrice } from '../config';
+
+const launch = currentPrice();
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'Is Lagsmith Pro a subscription?', a: 'No. It’s a one-time purchase that includes a year of updates.' },
+  { q: 'What happens after the year of updates?', a: 'Lagsmith keeps working with Pro unlocked, on the last version released during your year, for as long as it runs on your Mac. Buy again whenever you want another year of updates.' },
+  { q: 'How many Macs can I use it on?', a: 'A licence is for one person, on all the Macs they personally use, including CI machines running their own tests. Each person on a team needs their own licence.' },
+  { q: 'Can I get a refund?', a: `Yes. Full refund within ${SITE.legal.refundDays} days, no questions asked. See the <a href="/refunds">refund policy</a>.` },
+  { q: 'How does the trial work?', a: 'A 14-day Pro trial starts the first time you open Lagsmith. No account and no card.' },
+  { q: 'What happens when the trial ends?', a: 'Lagsmith switches to the free version, which keeps working: watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
+  { q: 'How do I activate Pro?', a: 'After buying, click Activate Lagsmith on the thank-you page or in the email, or paste your licence key in Lagsmith › Lagsmith Pro… › Enter Licence Key…' },
+  { q: 'I lost my licence key.', a: 'Use the <a href="/lost-key">lost key page</a> to get it again.' },
+];
+---
+<Base
+  title="Pricing"
+  description="Lagsmith is free to download with a 14-day Pro trial. The free version keeps working after the trial; Pro unlocks every preset, failure modes, mocking and automation."
+  breadcrumbs={[{ name: 'Pricing', href: '/pricing' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head center">
+    <div class="wrap">
+      <h1>Pricing</h1>
+      <p class="lead">Start with 14 days of Pro, free. No account, no card.</p>
+    </div>
+  </section>
+  <section class="section" style="padding-top: 0">
+    <div class="wrap">
+      <div class="plans">
+        <div class="plan">
+          <h3>Free</h3>
+          <p class="price">$0</p>
+          <ul>
+            <li>Watch any app</li>
+            <li>See its last 50 requests and its connections</li>
+            <li>Slow it down with the Edge preset</li>
+          </ul>
+          <DownloadButton secondary />
+        </div>
+        <div class="plan pro">
+          <h3>Pro</h3>
+          <PriceTag />
+          <ul>
+            <li>Every preset per app</li>
+            <li>Custom presets and changing conditions over time</li>
+            <li>Airplane Mode and failure modes</li>
+            <li>Fail and mock endpoints</li>
+            <li>Automation: UI test helper, command line, URL scheme, HTTP API</li>
+            <li>MCP server for AI agents</li>
+            <li>Unlimited request history, search filters, HAR export</li>
+            <li>Mini monitor</li>
+          </ul>
+          {SITE.checkoutUrl ? <a class="btn btn-primary" href="/buy">Buy Lagsmith Pro</a> : <DownloadButton label="Start the free trial" />}
+        </div>
+      </div>
+      {launch.regularLabel && (
+        <div class="callout narrow" style="margin: 0 auto 1.5em"><p><strong>Started your trial during the launch?</strong> If you download Lagsmith by {launch.launchEndsLabel} and buy before your 14-day trial ends, you get the {launch.label} launch price, even after {launch.launchEndsLabel}. Just <a href={`mailto:${SITE.supportEmail}?subject=Launch%20price`}>email us</a> for a code.</p></div>
+      )}
+      <p class="center muted">Prices in US dollars. Sales tax or VAT is added at checkout where it applies. Payments are handled by Paddle. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>.</p>
+    </div>
+    <div class="wrap narrow"><Faq items={faq} /></div>
+  </section>
+</Base>

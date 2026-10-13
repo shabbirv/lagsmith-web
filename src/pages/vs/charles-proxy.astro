@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import Cta from '../../components/Cta.astro';
+import DownloadButton from '../../components/DownloadButton.astro';
+import { appSchema } from '../../lib';
+
+const rows = [
+  ['How it works', 'HTTP proxy: traffic is routed through Charles', 'Per-app network control, no proxy'],
+  ['Throttling', 'Throttles everything going through the proxy', 'Throttles only the apps you choose'],
+  ['HTTPS', 'Install and trust Charles’s root certificate to see HTTPS', 'Sees simulator requests with no certificate or proxy settings'],
+  ['Failures', 'Rewrite, map and breakpoint requests', 'Airplane Mode, refused connections, time-outs, dropped connections, outages that come and go, fail or mock one endpoint'],
+  ['Offline in the simulator', 'Not a device-like offline state', 'NWPathMonitor and SCNetworkReachability report no network'],
+  ['Physical devices', 'Yes, by pointing the device at the proxy', 'Mac apps and iOS Simulator apps'],
+];
+---
+<Base
+  title="Charles Proxy throttling alternative for iOS Simulator and Mac"
+  description="Lagsmith vs. Charles Proxy for network throttling: throttle one app instead of everything through a proxy, without installing certificates, with Airplane Mode and failure modes."
+  breadcrumbs={[{ name: 'Compare', href: '/network-link-conditioner-alternative' }, { name: 'Lagsmith vs. Charles Proxy', href: '/vs/charles-proxy' }]}
+  jsonLd={[appSchema()]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Lagsmith vs. Charles Proxy for throttling</h1>
+      <p class="lead">Charles Proxy is a long-standing HTTP debugging proxy, and its throttling is popular with iOS developers. If throttling is what you mostly use Charles for, Lagsmith is a simpler Charles Proxy throttling alternative: per app, no proxy and no certificates.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="table-wrap">
+        <table class="table-compare">
+          <thead><tr><th></th><th>Charles Proxy</th><th>Lagsmith</th></tr></thead>
+          <tbody>{rows.map(([k, a, b]) => <tr><td>{k}</td><td>{a}</td><td>{b}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="wrap narrow">
+      <h2>When Charles is the better fit</h2>
+      <p>Charles is great for deep HTTP debugging: breakpoints, rewriting, mapping requests to local files, and inspecting traffic from physical devices. Many developers use both.</p>
+      <h2>When to use Lagsmith</h2>
+      <ul>
+        <li>You want to slow down one app, not everything going through a proxy.</li>
+        <li>You don’t want to install and trust a root certificate in each simulator.</li>
+        <li>You need real offline behaviour, time-outs and dropped connections, not only slow responses.</li>
+        <li>You want an AI agent or UI test to control the network.</li>
+      </ul>
+      <p>Lagsmith exports requests as HAR, which opens in Charles. See also <a href="/network-link-conditioner-alternative">Lagsmith vs. Network Link Conditioner</a> and <a href="/vs/proxyman">Lagsmith vs. Proxyman</a>.</p>
+    </div>
+  </section>
+  <Cta />
+</Base>

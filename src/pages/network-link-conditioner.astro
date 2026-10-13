@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import { faqSchema, howToSchema } from '../lib';
+
+const installSteps = [
+  { name: 'Find your Xcode version', text: 'Open Xcode and choose Xcode › About Xcode to see the version number.' },
+  { name: 'Download Additional Tools for Xcode', text: 'Sign in at developer.apple.com/download/all with your Apple ID, search for “Additional Tools for Xcode”, and download the version that matches your Xcode.' },
+  { name: 'Open the disk image', text: 'Open the downloaded .dmg file and then the Hardware folder.' },
+  { name: 'Install the preference pane', text: 'Double-click Network Link Conditioner.prefPane and confirm the installation. It appears in System Settings.' },
+  { name: 'Turn it on', text: 'Open Network Link Conditioner in System Settings, choose a profile such as 3G, and switch it on. It now applies to the whole Mac.' },
+];
+
+const presets = [
+  ['Edge', '240 kbps', '400 ms', '200 kbps', '440 ms', '0%'],
+  ['3G', '780 kbps', '100 ms', '330 kbps', '100 ms', '0%'],
+  ['DSL', '2 Mbps', '5 ms', '256 kbps', '5 ms', '0%'],
+  ['LTE', '50 Mbps', '50 ms', '10 Mbps', '65 ms', '0%'],
+  ['WiFi', '40 Mbps', '1 ms', '33 Mbps', '1 ms', '0%'],
+  ['Very Bad Network', '1 Mbps', '500 ms', '1 Mbps', '500 ms', '10%'],
+  ['100% Loss', '–', '–', '–', '–', '100%'],
+];
+
+const faq = [
+  { q: 'Where do I download Network Link Conditioner?', a: 'It is part of “Additional Tools for Xcode”, a free download at developer.apple.com/download/all. Sign in with your Apple ID and pick the version that matches your Xcode.' },
+  { q: 'Does Network Link Conditioner affect the iOS Simulator?', a: 'Yes, because it slows down the whole Mac. The simulator, and every app in it, uses the Mac’s network, so they are all slowed down together, along with everything else on the Mac.' },
+  { q: 'Can I throttle only one app with Network Link Conditioner?', a: 'No. It applies to the whole Mac (or the whole iPhone). To slow down one app at a time, use a per-app tool such as <a href="/network-link-conditioner-alternative">Lagsmith</a>.' },
+  { q: 'How do I enable Network Link Conditioner on an iPhone?', a: 'Connect the iPhone to a Mac with Xcode and turn on Developer Mode. Then open Settings › Developer › Network Link Conditioner, choose a profile and switch it on.' },
+  { q: 'Why doesn’t Network Link Conditioner seem to do anything?', a: 'Check that the switch is on, not just a profile selected, and that you downloaded the Additional Tools version that matches your Xcode. Changes apply to new connections, so restart the app you are testing.' },
+];
+---
+<Base
+  title="Network Link Conditioner: how to download, install and use it on Mac"
+  description="How to download and install Apple’s Network Link Conditioner on macOS, enable it on iPhone, what each preset means in numbers, and its limits."
+  breadcrumbs={[{ name: 'Network Link Conditioner guide', href: '/network-link-conditioner' }]}
+  jsonLd={[
+    howToSchema('How to install Network Link Conditioner on a Mac', 'Install Apple’s Network Link Conditioner from Additional Tools for Xcode.', installSteps),
+    faqSchema(faq),
+  ]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Network Link Conditioner: a practical guide</h1>
+      <p class="lead">Network Link Conditioner is Apple’s free tool for simulating slow networks on a Mac or an iPhone. This guide shows how to download and install it, what each preset means in numbers, and where its limits are.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 24px">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">What Network Link Conditioner does</h2>
+      <p>Network Link Conditioner limits bandwidth, adds latency and drops packets for all network traffic on the device. On a Mac it is a pane in System Settings; on an iPhone or iPad it is in Settings › Developer. Developers use it to see how an app behaves on Edge, 3G or a lossy connection.</p>
+
+      <h2>How to download and install Network Link Conditioner on macOS</h2>
+      <p>Network Link Conditioner isn’t part of Xcode itself. It comes in a separate download called Additional Tools for Xcode.</p>
+      <ol class="steps">
+        {installSteps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}
+      </ol>
+      <div class="callout"><p>Use the Additional Tools version that matches your Xcode. Mismatched versions are the most common reason it fails to install or doesn’t take effect.</p></div>
+
+      <h2>How to use Network Link Conditioner on an iPhone</h2>
+      <ol class="steps">
+        <li>Connect the iPhone to a Mac with Xcode and turn on Developer Mode in Settings › Privacy &amp; Security.</li>
+        <li>Open Settings › Developer › Network Link Conditioner.</li>
+        <li>Choose a profile and switch Enable on. Remember to turn it off afterwards: it slows down every app on the phone.</li>
+      </ol>
+
+      <h2>Network Link Conditioner presets in numbers</h2>
+      <p>These are the built-in profiles. Delay is added in each direction, so the round-trip latency is about double.</p>
+    </div>
+    <div class="wrap narrow">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Preset</th><th>Download</th><th>Down delay</th><th>Upload</th><th>Up delay</th><th>Packet loss</th></tr></thead>
+          <tbody>{presets.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+      <p class="muted">You can also create custom profiles with your own bandwidth, delay and packet loss, and limit DNS delay separately.</p>
+
+      <h2>Limits of Network Link Conditioner</h2>
+      <ul>
+        <li><strong>It slows down the whole Mac.</strong> Your browser, Slack, Xcode downloads and your AI coding agent all slow down with the app you are testing.</li>
+        <li><strong>No per-app or per-simulator control.</strong> Every iOS Simulator app is throttled at once.</li>
+        <li><strong>Only slowness and packet loss.</strong> No Airplane Mode for one app, refused connections, time-outs or failing a single endpoint.</li>
+        <li><strong>No visibility.</strong> It doesn’t show which requests were slow or failed.</li>
+        <li><strong>No automation.</strong> No command line or API to switch profiles from a UI test or CI.</li>
+      </ul>
+
+      <h2>Where Lagsmith fits</h2>
+      <p>Lagsmith uses the same preset names but applies them to one app at a time, including a single app in the iOS Simulator, and adds failure modes, request monitoring and automation. Keep Network Link Conditioner for testing on a physical iPhone or slowing down the whole Mac; use Lagsmith when you need it per app. <a href="/network-link-conditioner-alternative">Compare them side by side</a>.</p>
+
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <Cta />
+</Base>

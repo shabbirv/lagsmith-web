@@ -1,0 +1,154 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+
+interface Crumb { name: string; href: string }
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  breadcrumbs?: Crumb[];
+  jsonLd?: object[];
+  noindex?: boolean;
+}
+
+const { title, description, ogImage = '/og.png', breadcrumbs, jsonLd = [], noindex = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '') || '/';
+const canonical = new URL(path, SITE.url).href.replace(/\/$/, path === '/' ? '/' : '');
+const fullTitle = path === '/' ? title : `${title} | Lagsmith`;
+const ogUrl = new URL(ogImage, SITE.url).href;
+
+const schemas: object[] = [...jsonLd];
+if (breadcrumbs?.length) {
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [{ name: 'Home', href: '/' }, ...breadcrumbs].map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      item: new URL(c.href, SITE.url).href,
+    })),
+  });
+}
+
+const nav = [
+  { href: '/network-link-conditioner-alternative', label: 'vs. NLC', cls: 'hide-sm' },
+  { href: '/ai-agents-network-testing', label: 'AI agents', cls: 'hide-sm' },
+  { href: '/docs', label: 'Docs', cls: '' },
+  { href: '/pricing', label: 'Pricing', cls: '' },
+];
+const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href + '/'));
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0F1A2B" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lagsmith" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+    <slot name="head" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/"><img src="/icon-256.png" alt="" width="28" height="28" />Lagsmith</a>
+        <nav class="nav" aria-label="Main">
+          {nav.map((n) => (
+            <a href={n.href} class={n.cls} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a>
+          ))}
+          <a class="btn btn-primary" href="/download">Download</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      {breadcrumbs?.length && (
+        <div class="wrap" style="padding-top: 24px">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            {breadcrumbs.map((c, i) => (
+              <>
+                <span aria-hidden="true">/</span>
+                {i === breadcrumbs.length - 1 ? <span aria-current="page">{c.name}</span> : <a href={c.href}>{c.name}</a>}
+              </>
+            ))}
+          </nav>
+        </div>
+      )}
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="footer-cols">
+          <div>
+            <a class="brand" href="/"><img src="/icon-256.png" alt="" width="28" height="28" loading="lazy" />Lagsmith</a>
+            <p style="margin-top: 10px">Slow down one app, not your whole Mac.</p>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <ul>
+              <li><a href="/download">Download</a></li>
+              <li><a href="/pricing">Pricing</a></li>
+              <li><a href="/changelog">Changelog</a></li>
+              <li><a href="/docs">Docs</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Use cases</h4>
+            <ul>
+              <li><a href="/throttle-ios-simulator">Throttle the iOS Simulator</a></li>
+              <li><a href="/simulate-airplane-mode-ios-simulator">Airplane Mode in the Simulator</a></li>
+              <li><a href="/throttle-app-bandwidth-mac">Throttle one Mac app</a></li>
+              <li><a href="/simulate-slow-network">Simulate a slow network</a></li>
+              <li><a href="/mock-api-ios-simulator">Mock an API endpoint</a></li>
+              <li><a href="/ai-agents-network-testing">AI agents and MCP</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Compare</h4>
+            <ul>
+              <li><a href="/network-link-conditioner-alternative">Network Link Conditioner alternative</a></li>
+              <li><a href="/network-link-conditioner">Network Link Conditioner guide</a></li>
+              <li><a href="/vs/charles-proxy">Lagsmith vs. Charles Proxy</a></li>
+              <li><a href="/vs/proxyman">Lagsmith vs. Proxyman</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Help</h4>
+            <ul>
+              <li><a href="/support">Support</a></li>
+              <li><a href="/lost-key">Lost your key?</a></li>
+              <li><a href="/privacy">Privacy</a></li>
+              <li><a href="/terms">Terms</a></li>
+              <li><a href="/refunds">Refund policy</a></li>
+            </ul>
+          </div>
+        </div>
+        <p class="legal">© {new Date().getFullYear()} {SITE.legal.name}. Apple, Mac, macOS, Xcode and iOS are trademarks of Apple Inc. Lagsmith is not affiliated with Apple.</p>
+      </div>
+    </footer>
+  </body>
+</html>

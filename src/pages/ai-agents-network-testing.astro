@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import AgentTerminal from '../components/AgentTerminal.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'Which AI agents does Lagsmith work with?', a: 'Any agent that supports MCP, including Claude Code, Cursor, Codex, Claude Desktop and Windsurf.' },
+  { q: 'Will throttling the app slow down my agent?', a: 'No. Lagsmith only slows down the app under test. The agent’s own connection stays at full speed.' },
+  { q: 'Does the MCP server need a separate install?', a: 'No. It is built into the Lagsmith app.' },
+  { q: 'Is the MCP server included in the free version?', a: 'Automation, including MCP for AI agents, is part of Pro. Every install starts with a 14-day Pro trial.' },
+];
+
+const tools = [
+  'List simulators and their apps',
+  'Set and reset an app’s network conditions',
+  'Relaunch an app with request monitoring',
+  'Read the app’s requests',
+  'Fail or mock endpoints',
+];
+---
+<Base
+  title="Network testing for AI coding agents with MCP"
+  description="Let Claude Code, Cursor and Codex test your app on bad networks. Lagsmith’s MCP server throttles the app under test without slowing down the AI agent."
+  breadcrumbs={[{ name: 'AI agents and MCP', href: '/ai-agents-network-testing' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Network testing for AI coding agents</h1>
+      <p class="lead">Run your end-to-end tests on 3G without your AI agent’s own connection slowing down. Lagsmith’s built-in MCP server lets Claude Code, Cursor, Codex, Claude Desktop and Windsurf control the network of the app under test.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+    <div class="wrap" style="max-width: 920px; margin-top: 24px"><AgentTerminal /></div>
+  </section>
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">The problem with throttling the whole Mac</h2>
+      <p>Your AI agent talks to its model over the network. Turn on a whole-Mac throttle like Network Link Conditioner and the agent slows to a crawl along with the app it is testing. Lagsmith slows down only the app under test.</p>
+
+      <h2>What the agent can do</h2>
+      <ul>{tools.map((t) => <li>{t}</li>)}</ul>
+      <p>So you can ask things like: <em>“Relaunch the app on 3G, log in, and tell me which requests took longer than two seconds,”</em> or <em>“Make /v1/feed return a 500 and check the app shows the error state.”</em></p>
+
+      <h2>Set it up</h2>
+      <ol class="steps">
+        <li><a href="/download">Install Lagsmith</a> and allow its network extension.</li>
+        <li>Add Lagsmith’s MCP server to your agent. For Claude Code, run:
+          <CodeBlock code={'claude mcp add --scope user lagsmith -- "/Applications/Lagsmith.app/Contents/MacOS/lagsmith-mcp"'} />
+          Using Cursor, Codex, Claude Desktop or Windsurf? <a href="/docs/mcp">See the setup for each</a>.</li>
+        <li>Ask your agent to run your tests on a slow or failing network.</li>
+      </ol>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

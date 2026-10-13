@@ -1,0 +1,20 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import { SITE } from '../../config';
+---
+<Docs title="Troubleshooting" description="Fix common Lagsmith problems: allowing the network extension, an app not slowing down, and missing simulator requests.">
+  <h2>I missed the network extension prompt</h2>
+  <p>Open System Settings › Privacy &amp; Security and look for a message about Lagsmith’s extension, then click Allow. On newer versions of macOS, also check System Settings › General › Login Items &amp; Extensions. Then quit and reopen Lagsmith.</p>
+  <h2>The app isn’t slowing down</h2>
+  <ul>
+    <li>Check the network extension is allowed (above).</li>
+    <li>Conditions apply to new connections. Restart the app, or relaunch it from Lagsmith.</li>
+    <li>If you use a host rule, check the app’s requests go to a host the rule covers.</li>
+  </ul>
+  <h2>Everything is slow, not just one app</h2>
+  <p>Check that Apple’s Network Link Conditioner is switched off in System Settings. It slows down the whole Mac.</p>
+  <h2>I don’t see a simulator app’s requests, or Airplane Mode doesn’t change NWPathMonitor</h2>
+  <p>Relaunch the app with request monitoring from Lagsmith.</p>
+  <h2>Still stuck?</h2>
+  <p>Email <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a> with your macOS and Lagsmith versions.</p>
+</Docs>

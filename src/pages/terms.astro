@@ -1,0 +1,78 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+
+const { legal } = SITE;
+const updated = 'October 13, 2026';
+---
+<Base title="Terms" description={`Terms of use and licence for Lagsmith, made by ${legal.name}.`} breadcrumbs={[{ name: 'Terms', href: '/terms' }]}>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Terms</h1>
+      <p class="muted">Last updated {updated}</p>
+
+      <p>These terms cover your use of the Lagsmith app and the lagsmith.com website. Lagsmith is made by {legal.name}, a company based in {legal.location} (“we”, “us”). By downloading or using Lagsmith, you agree to these terms.</p>
+
+      <h2>1. The free version and the trial</h2>
+      <p>Lagsmith is free to download. The first time you open it, a 14-day trial of Lagsmith Pro starts, with no account or payment needed. When the trial ends, Lagsmith keeps working as the free version, with fewer features. You may use the free version for as long as you like, subject to these terms.</p>
+
+      <h2>2. Your Lagsmith Pro licence</h2>
+      <p>Lagsmith Pro is a one-time purchase. When you buy it, we grant you a personal, non-exclusive, non-transferable licence to use Lagsmith Pro, subject to these terms.</p>
+      <ul>
+        <li><strong>One person, all their Macs.</strong> A licence is for one person. You may use it on any Macs you personally use, at work and at home.</li>
+        <li><strong>Teams.</strong> Each person who uses Lagsmith Pro needs their own licence. A company may buy licences for its employees; each licence is then assigned to one person.</li>
+        <li><strong>CI machines.</strong> You may use your licence on build or test machines that run your own automated tests.</li>
+        <li><strong>Keep your key to yourself.</strong> Don’t share, publish, resell or transfer your licence key.</li>
+      </ul>
+
+      <h2>3. Updates</h2>
+      <p>Your purchase includes all Lagsmith updates released within one year of the purchase date. After that year, the last version released within it keeps working with Pro unlocked, for as long as it runs on your Mac. Buying again gives you another year of updates. We may change, add or remove features in updates.</p>
+      <p>Lagsmith depends on macOS, Xcode and the iOS Simulator, which Apple changes regularly. We work to keep Lagsmith compatible, but we can’t promise that every version will work with every future version of Apple’s software.</p>
+
+      <h2>4. Buying</h2>
+      <p>Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns. Paddle’s <a href="https://www.paddle.com/legal/checkout-buyer-terms" rel="noopener">buyer terms</a> apply to your purchase.</p>
+      <p>Prices are shown in US dollars. Paddle adds sales tax or VAT where it applies. If we change our prices, the change doesn’t affect licences you have already bought.</p>
+
+      <h2>5. Refunds</h2>
+      <p>If Lagsmith Pro isn’t right for you, you can get a full refund within {legal.refundDays} days of purchase, for any reason. See our <a href="/refunds">refund policy</a>. When a purchase is refunded, its licence ends.</p>
+
+      <h2>6. Using Lagsmith responsibly</h2>
+      <p>Lagsmith changes and inspects the network traffic of apps you choose on your Mac. You agree to:</p>
+      <ul>
+        <li>use Lagsmith only on Macs you own or are allowed to configure, and on apps you are allowed to test,</li>
+        <li>use the request monitoring features in line with the law and any obligations you have to the people whose data your apps handle,</li>
+        <li>not use Lagsmith to disrupt networks or services you don’t own or have permission to test,</li>
+        <li>not remove, bypass or tamper with Lagsmith’s licence checks, or reverse-engineer the app except where the law allows it.</li>
+      </ul>
+      <p>When you slow down or break an app’s network, that app may behave unexpectedly, fail requests, or lose unsaved data. That is the purpose of the tool; please don’t use it on apps where that would cause harm.</p>
+
+      <h2>7. AI agents and automation</h2>
+      <p>Lagsmith can be controlled by tests, scripts and AI coding agents through its command line tool, URL scheme, local HTTP API and MCP server. You are responsible for the tools and agents you connect to Lagsmith and the actions they take with it. Third-party agents and services are governed by their own terms.</p>
+
+      <h2>8. Privacy</h2>
+      <p>Lagsmith runs locally on your Mac and has no account and no analytics. See our <a href="/privacy">privacy policy</a> for what we collect when you buy Pro or visit this website.</p>
+
+      <h2>9. Ownership</h2>
+      <p>Lagsmith, its code and its design, and the Lagsmith name and icon, belong to {legal.name}. Your licence lets you use the app; it doesn’t transfer any ownership. Apple, Mac, macOS, Xcode and iOS are trademarks of Apple Inc. Lagsmith is not affiliated with or endorsed by Apple.</p>
+
+      <h2>10. No warranty</h2>
+      <p>Lagsmith is provided “as is” and “as available”, without warranties of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose and non-infringement, to the fullest extent the law allows. We don’t promise that Lagsmith will be error-free or uninterrupted, or that its simulated network conditions will exactly match any real network.</p>
+
+      <h2>11. Limitation of liability</h2>
+      <p>To the fullest extent the law allows, {legal.name} will not be liable for any indirect, incidental, special, consequential or punitive damages, or for lost profits, revenue or data, arising from your use of Lagsmith. Our total liability for any claim relating to Lagsmith is limited to the amount you paid us for Lagsmith in the 12 months before the claim, or US$50 if you haven’t paid anything.</p>
+      <p>Some places don’t allow these exclusions or limits, so they may not apply to you. Nothing in these terms limits rights you have under consumer protection laws that can’t be waived.</p>
+
+      <h2>12. Ending these terms</h2>
+      <p>You can stop using Lagsmith at any time by deleting it. If you seriously or repeatedly break these terms, we may end your licence; we will tell you by email first where we reasonably can. Sections 9 to 13 continue to apply after these terms end.</p>
+
+      <h2>13. Governing law</h2>
+      <p>These terms are governed by the laws of {legal.governingLaw}, United States, without regard to its conflict-of-law rules. Any dispute will be handled by the state or federal courts located in California, unless the consumer protection laws of your country give you the right to bring a claim where you live.</p>
+
+      <h2>14. Changes to these terms</h2>
+      <p>We may update these terms, for example when we add features or change how we sell Lagsmith. We will post the new terms here with a new date. Changes won’t take away rights you already have under a licence you have bought.</p>
+
+      <h2>Contact</h2>
+      <p>{legal.name}<br /><a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
+    </div>
+  </section>
+</Base>

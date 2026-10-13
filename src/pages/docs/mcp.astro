@@ -1,0 +1,75 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import AgentTerminal from '../../components/AgentTerminal.astro';
+
+const bin = '/Applications/Lagsmith.app/Contents/MacOS/lagsmith-mcp';
+const claudeCode = `claude mcp add --scope user lagsmith -- "${bin}"`;
+const json = JSON.stringify({ mcpServers: { lagsmith: { command: bin } } }, null, 2);
+const toml = `[mcp_servers.lagsmith]\ncommand = "${bin}"`;
+
+const tools = [
+  ['list_targets', 'Running simulators and their apps, running Mac apps, presets and current rules', 'none'],
+  ['status', 'Every rule, what it’s doing, and whether the proxy is running', 'none'],
+  ['set_network', 'Slow down or break one app’s network', 'app, simulator; preset, or down/up (kbps), latency/jitter (ms), loss (%); failure (airplane, refuse, timeout, drop, outages); hosts, hosts_mode'],
+  ['reset_network', 'Back to full speed; the app stays watched', 'app, simulator'],
+  ['stop_watching', 'Turn the app’s rule off entirely', 'app, simulator'],
+  ['relaunch_app', 'Relaunch a simulator app with request monitoring', 'app, simulator'],
+  ['get_requests', 'The app’s recent HTTP requests, newest first', 'app, simulator, limit, filter (e.g. is:failed, status:5xx), include_bodies'],
+  ['fail_endpoint', 'Make one endpoint fail while the rest works', 'app, simulator, pattern, kind (offline, timeout, status, delay), value'],
+  ['mock_endpoint', 'Answer one endpoint with a made-up response', 'app, simulator, pattern, status, body, content_type, delay'],
+  ['clear_endpoints', 'Remove endpoint failures and mocks', 'app, simulator, pattern'],
+];
+---
+<Docs title="MCP for AI agents" description="Add Lagsmith’s MCP server to Claude Code with one command, or to Cursor, Codex, Claude Desktop and Windsurf, and test apps on slow and failing networks.">
+  <p>Lagsmith has an MCP server built in. AI coding agents that support MCP, including Claude Code, Cursor, Codex, Claude Desktop and Windsurf, can use it to:</p>
+  <ul>
+    <li>list simulators and apps,</li>
+    <li>set and reset an app’s network,</li>
+    <li>relaunch an app with request monitoring,</li>
+    <li>read its requests,</li>
+    <li>fail or mock endpoints.</li>
+  </ul>
+  <p>Because Lagsmith only slows down the app under test, the agent’s own connection stays at full speed.</p>
+  <div class="callout"><p>The MCP server ships inside the app at <code>{bin}</code>, so Lagsmith needs to be in your Applications folder. Automation, including MCP, is part of Pro and included in the 14-day trial.</p></div>
+
+  <h2>Claude Code</h2>
+  <p>Run this once in Terminal:</p>
+  <CodeBlock code={claudeCode} />
+  <p><code>--scope user</code> makes Lagsmith available in every project. Start a new Claude Code session and run <code>/mcp</code> to check it’s connected.</p>
+
+  <h2>Cursor</h2>
+  <p>Add this to <code>~/.cursor/mcp.json</code> (or <code>.cursor/mcp.json</code> in a project):</p>
+  <CodeBlock code={json} label="~/.cursor/mcp.json" />
+
+  <h2>Codex</h2>
+  <p>Add this to <code>~/.codex/config.toml</code>:</p>
+  <CodeBlock code={toml} label="~/.codex/config.toml" />
+
+  <h2>Claude Desktop</h2>
+  <p>In Claude Desktop, open Settings › Developer › Edit Config and add:</p>
+  <CodeBlock code={json} label="~/Library/Application Support/Claude/claude_desktop_config.json" />
+  <p>Then restart Claude Desktop.</p>
+
+  <h2>Windsurf</h2>
+  <p>Add this to Windsurf’s MCP config:</p>
+  <CodeBlock code={json} label="~/.codeium/windsurf/mcp_config.json" />
+  <p>If your config file already has other servers, add the <code>lagsmith</code> entry inside the existing <code>mcpServers</code> section rather than replacing the file.</p>
+
+  <h2>Tools</h2>
+  <p>Lagsmith’s MCP server gives agents {tools.length} tools:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tool</th><th>What it does</th><th>Main parameters</th></tr></thead>
+    <tbody>{tools.map(([t, d, p]) => <tr><td><code>{t}</code></td><td>{d}</td><td>{p}</td></tr>)}</tbody>
+  </table></div>
+
+  <h2>What a session looks like</h2>
+  <AgentTerminal />
+
+  <h2>Example prompts</h2>
+  <ul>
+    <li>“Relaunch the app on 3G with monitoring, sign in, and list requests slower than two seconds.”</li>
+    <li>“Put the app in Airplane Mode and check that the offline banner appears.”</li>
+    <li>“Make POST /v1/orders return 500 and check the app shows a retry button.”</li>
+  </ul>
+</Docs>

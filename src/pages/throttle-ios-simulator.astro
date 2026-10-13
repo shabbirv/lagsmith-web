@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import AppMock from '../components/AppMock.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'Can I throttle the iOS Simulator without slowing down my Mac?', a: 'Yes. Lagsmith throttles only the simulator app you pick. Your browser, Xcode and everything else on the Mac stay at full speed.' },
+  { q: 'Can I throttle one simulator device but not another?', a: 'Yes. Lagsmith can apply conditions per simulator device, so the same app can run on 3G on one device and at full speed on another.' },
+  { q: 'Which presets are available?', a: 'Edge, 3G, DSL, LTE, WiFi, Very Bad Network, 100% Loss and No Throttling, plus custom bandwidth, latency, jitter and packet loss.' },
+  { q: 'Does throttling the simulator need a proxy or certificate?', a: 'No. Lagsmith works without proxy settings or certificates.' },
+];
+---
+<Base
+  title="Throttle the iOS Simulator per app"
+  description="Throttle the iOS Simulator one app at a time. Simulate 3G, Edge, high latency and packet loss for a single simulator app while the rest of your Mac stays fast."
+  breadcrumbs={[{ name: 'Throttle the iOS Simulator', href: '/throttle-ios-simulator' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap">
+      <div>
+        <h1>Throttle the iOS Simulator, one app at a time</h1>
+        <p class="lead">The iOS Simulator uses your Mac’s network, so the usual way to throttle the iOS Simulator slows down the whole Mac. Lagsmith throttles one simulator app, or one app on one simulator device, and leaves everything else alone.</p>
+        <div class="actions"><DownloadButton /></div>
+      </div>
+      <div class="mock-wide"><AppMock variant="simulator" /></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">How to simulate a slow network in the iOS Simulator</h2>
+      <ol class="steps">
+        <li>Boot a simulator and run your app from Xcode.</li>
+        <li>Click the Lagsmith menu bar icon and pick your app under the simulator device.</li>
+        <li>Choose a preset such as 3G (780 kbps down, 200 ms latency) or Edge, or set your own bandwidth, latency, jitter and packet loss.</li>
+      </ol>
+      <p>Only that app slows down. Other simulator apps, other simulator devices and every Mac app keep their full connection.</p>
+
+      <h2>More than a fixed speed</h2>
+      <ul>
+        <li><strong>Profiles</strong> that change conditions over time, like a train going through a tunnel.</li>
+        <li><strong>Host rules</strong> to slow down only <code>api.example.com</code>, or everything except your CDN.</li>
+        <li><strong>Failures</strong>: <a href="/simulate-airplane-mode-ios-simulator">Airplane Mode</a>, refused connections, time-outs and dropped connections.</li>
+        <li><strong>Request monitoring</strong> to see which requests were slow and why.</li>
+        <li><strong>UI tests</strong>: set the network from an XCTest before launching the app. <a href="/docs/automation">Automation docs</a>.</li>
+      </ul>
+      <p>Coming from Apple’s tool? See <a href="/network-link-conditioner-alternative">Lagsmith as a Network Link Conditioner alternative</a>.</p>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

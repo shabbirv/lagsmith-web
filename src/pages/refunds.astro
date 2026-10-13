@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+
+const { legal } = SITE;
+const updated = 'October 13, 2026';
+---
+<Base title="Refund policy" description={`Lagsmith Pro comes with a ${legal.refundDays}-day, no-questions-asked refund.`} breadcrumbs={[{ name: 'Refund policy', href: '/refunds' }]}>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Refund policy</h1>
+      <p class="muted">Last updated {updated}</p>
+      <p class="lead">If Lagsmith Pro isn’t right for you, you can get a full refund within {legal.refundDays} days of purchase. No questions asked.</p>
+
+      <h2>How to get a refund</h2>
+      <p>Either:</p>
+      <ul>
+        <li>email <a href={`mailto:${SITE.supportEmail}?subject=Refund%20request`}>{SITE.supportEmail}</a> from the address you bought with, or include your order number, or</li>
+        <li>request it from Paddle, our reseller, at <a href="https://paddle.net" rel="noopener">paddle.net</a>, using the email address you bought with.</li>
+      </ul>
+      <p>You don’t need to give a reason, though we’re always glad to hear what didn’t work for you.</p>
+
+      <h2>What happens next</h2>
+      <ul>
+        <li>Paddle, the Merchant of Record for our orders, refunds the full amount, including any tax, to your original payment method.</li>
+        <li>Refunds usually appear within 5 to 10 business days, depending on your bank.</li>
+        <li>Your licence for that purchase ends, and Lagsmith goes back to the free version.</li>
+      </ul>
+
+      <h2>After {legal.refundDays} days</h2>
+      <p>After {legal.refundDays} days we don’t normally give refunds, but if something has gone wrong, such as a duplicate purchase or Lagsmith not working on your Mac, email us and we’ll sort it out.</p>
+
+      <h2>Try before you buy</h2>
+      <p>Every install includes a 14-day Pro trial with everything unlocked, so you can check that Lagsmith works for you before buying.</p>
+
+      <p>This policy doesn’t affect your legal rights, including any right to withdraw from a purchase under the consumer laws of your country.</p>
+      <p>See also our <a href="/terms">terms</a>.</p>
+    </div>
+  </section>
+</Base>

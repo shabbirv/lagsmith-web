@@ -1,0 +1,18 @@
+---
+import Docs from '../../layouts/Docs.astro';
+---
+<Docs title="Presets and custom conditions" description="Lagsmith’s network presets (Edge, 3G, DSL, LTE, WiFi, Very Bad Network, 100% Loss), custom bandwidth, latency, jitter and packet loss, profiles and host rules.">
+  <h2>Presets</h2>
+  <p>Lagsmith includes the same presets as Apple’s Network Link Conditioner, by the same names:</p>
+  <ul>
+    <li>Edge</li><li>3G (780 kbps down, 200 ms latency)</li><li>DSL</li><li>LTE</li><li>WiFi</li><li>Very Bad Network</li><li>100% Loss</li>
+    <li>No Throttling: watch the app without changing its network</li>
+  </ul>
+  <p>Each app has its own setting. In the iOS Simulator, you can even set the same app differently on different simulator devices.</p>
+  <h2>Custom conditions</h2>
+  <p>Set download and upload bandwidth, latency, jitter and packet loss, and save them as your own presets.</p>
+  <h2>Profiles</h2>
+  <p>Profiles change conditions over time instead of holding one fixed speed, so you can test a connection that gets worse and recovers.</p>
+  <h2>Host rules</h2>
+  <p>Limit a rule to some hosts, such as only <code>api.example.com</code>, or everything except a CDN.</p>
+</Docs>

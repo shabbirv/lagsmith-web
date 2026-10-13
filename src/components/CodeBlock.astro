@@ -1,0 +1,27 @@
+---
+interface Props { code: string; label?: string }
+const { code, label } = Astro.props;
+---
+<div class="codeblock">
+  {label && <div class="codeblock-label">{label}</div>}
+  <pre><code>{code}</code></pre>
+  <button class="codeblock-copy" type="button" data-code={code}>Copy</button>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.codeblock-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(btn.dataset.code ?? '');
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = 'Copy'), 2000);
+    });
+  });
+</script>
+
+<style>
+  .codeblock { position: relative; margin: 1em 0 1.5em; }
+  .codeblock-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; font-family: var(--mono); }
+  .codeblock pre { margin: 0; padding-right: 84px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .codeblock-copy { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; }
+  .codeblock-copy:hover { border-color: var(--muted); }
+</style>

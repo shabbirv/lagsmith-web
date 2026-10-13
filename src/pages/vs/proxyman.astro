@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import Cta from '../../components/Cta.astro';
+import DownloadButton from '../../components/DownloadButton.astro';
+import { appSchema } from '../../lib';
+
+const rows = [
+  ['How it works', 'HTTP proxy: traffic is routed through Proxyman', 'Per-app network control, no proxy'],
+  ['Throttling', 'Throttles traffic going through the proxy', 'Throttles only the apps you choose'],
+  ['HTTPS', 'Install and trust Proxyman’s certificate to see HTTPS', 'Sees simulator requests with no certificate or proxy settings'],
+  ['Failures', 'Breakpoints, map local and scripting', 'Airplane Mode, refused connections, time-outs, dropped connections, outages that come and go, fail or mock one endpoint'],
+  ['Offline in the simulator', 'Not a device-like offline state', 'NWPathMonitor and SCNetworkReachability report no network'],
+  ['Physical devices', 'Yes, through the proxy', 'Mac apps and iOS Simulator apps'],
+];
+---
+<Base
+  title="Proxyman throttling alternative for iOS Simulator and Mac"
+  description="Lagsmith vs. Proxyman for network throttling: slow down one app without a proxy or certificates, with Airplane Mode, failure modes and MCP for AI agents."
+  breadcrumbs={[{ name: 'Compare', href: '/network-link-conditioner-alternative' }, { name: 'Lagsmith vs. Proxyman', href: '/vs/proxyman' }]}
+  jsonLd={[appSchema()]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Lagsmith vs. Proxyman for throttling</h1>
+      <p class="lead">Proxyman is a polished, modern HTTP debugging proxy for Mac. It can throttle, but through its proxy, and it needs a certificate to see HTTPS. Lagsmith focuses on network conditions: one app at a time, no proxy, no certificates.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="table-wrap">
+        <table class="table-compare">
+          <thead><tr><th></th><th>Proxyman</th><th>Lagsmith</th></tr></thead>
+          <tbody>{rows.map(([k, a, b]) => <tr><td>{k}</td><td>{a}</td><td>{b}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="wrap narrow">
+      <h2>When Proxyman is the better fit</h2>
+      <p>For full HTTP debugging, scripting and inspecting traffic from physical devices, Proxyman is excellent. Lagsmith exports HAR files that open in Proxyman, so the two work well together.</p>
+      <h2>When to use Lagsmith</h2>
+      <ul>
+        <li>You want to throttle or break one app’s network while everything else stays fast.</li>
+        <li>You want to skip installing certificates in each simulator.</li>
+        <li>You need device-like offline behaviour in the simulator.</li>
+        <li>You want UI tests or an AI agent to set network conditions.</li>
+      </ul>
+      <p>See also <a href="/network-link-conditioner-alternative">Lagsmith vs. Network Link Conditioner</a> and <a href="/vs/charles-proxy">Lagsmith vs. Charles Proxy</a>.</p>
+    </div>
+  </section>
+  <Cta />
+</Base>

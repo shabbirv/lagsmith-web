@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'Do I need a proxy or certificate to mock an endpoint?', a: 'No. Lagsmith fails and mocks endpoints in simulator apps without proxy settings or certificates.' },
+  { q: 'What can I do to one endpoint?', a: 'Take it offline, time it out, return an HTTP status, add a delay, or replace the response with a mocked one.' },
+  { q: 'Can I start the mock from the real response?', a: 'Yes. Start from the real response and edit it, so the mock matches your API’s shape.' },
+  { q: 'Does this work for Mac apps?', a: 'Failing and mocking endpoints works for iOS Simulator apps.' },
+];
+---
+<Base
+  title="Mock or fail an API endpoint in the iOS Simulator"
+  description="Fail, delay or mock one API endpoint in an iOS Simulator app without a proxy or certificates. Return errors, time-outs or a made-up response while the rest of the app works."
+  breadcrumbs={[{ name: 'Mock an API in the iOS Simulator', href: '/mock-api-ios-simulator' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <div>
+        <h1>Mock or fail one API endpoint in the iOS Simulator</h1>
+        <p class="lead">What does your app do when <code>/login</code> returns a 503 but everything else works? Lagsmith lets you fail, delay or mock one API endpoint in an iOS Simulator app, with no proxy and no certificates.</p>
+        <div class="actions"><DownloadButton /></div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Fail one request, keep the rest</h2>
+      <p>Pick an endpoint from the app’s requests and choose what happens to it:</p>
+      <ul>
+        <li><strong>Offline</strong>: the request fails as if there were no connection.</li>
+        <li><strong>Time-out</strong>: the request never answers.</li>
+        <li><strong>HTTP status</strong>: return a 401, 404, 500 or 503.</li>
+        <li><strong>Delay</strong>: respond, but slowly.</li>
+        <li><strong>Mock</strong>: return a made-up response, starting from the real one.</li>
+      </ul>
+      <h2>See the result</h2>
+      <p>Lagsmith’s request list shows every request with method, URL, status, timing, headers, bodies, a JSON tree and image previews. Filter with <code>status:4xx</code>, <code>method:POST</code>, <code>host:api</code>, <code>is:failed</code> or <code>-host:cdn</code>, and export to HAR.</p>
+      <h2>Why not a proxy?</h2>
+      <p>Proxies such as Charles and Proxyman can rewrite responses too, but need certificates installed to see HTTPS and route all traffic through the proxy. Lagsmith works without either. <a href="/vs/charles-proxy">vs. Charles</a> · <a href="/vs/proxyman">vs. Proxyman</a>.</p>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

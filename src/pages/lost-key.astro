@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+<Base title="Lost your licence key?" description="Get your Lagsmith Pro licence key again." breadcrumbs={[{ name: 'Lost your key?', href: '/lost-key' }]}>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Lost your licence key?</h1>
+      <p class="lead">First, search your email for “Lagsmith”. The email with your key also has an Activate Lagsmith button.</p>
+      <p>Still can’t find it? Email <a href={`mailto:${SITE.supportEmail}?subject=Lost%20licence%20key`}>{SITE.supportEmail}</a> from the address you bought with, and we’ll send it again.</p>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,21 @@
+---
+import Docs from '../../layouts/Docs.astro';
+---
+<Docs title="Failure modes" description="Airplane Mode for one app, refused connections, time-outs, dropped connections, intermittent outages, and failing or mocking a single endpoint.">
+  <h2>Airplane Mode</h2>
+  <p>Takes one app offline. In the iOS Simulator it behaves like a real device for apps launched with request monitoring:</p>
+  <ul>
+    <li>requests fail with “The Internet connection appears to be offline”,</li>
+    <li><code>NWPathMonitor</code> reports no network,</li>
+    <li><code>SCNetworkReachability</code> (used by Alamofire and Reachability.swift) reports no network.</li>
+  </ul>
+  <h2>Connection failures</h2>
+  <ul>
+    <li><strong>Refuse connections</strong>: refuse a percentage of new connections.</li>
+    <li><strong>Time out</strong>: every request times out.</li>
+    <li><strong>Drop connections</strong>: drop connections after a number of seconds.</li>
+    <li><strong>Outages</strong>: go offline and come back, repeatedly.</li>
+  </ul>
+  <h2>Fail or mock one endpoint</h2>
+  <p>In simulator apps, pick an endpoint and make it go offline, time out, return an HTTP status or respond with a delay, or mock it with a made-up response starting from the real one. The rest of the app keeps working. <a href="/mock-api-ios-simulator">More about mocking endpoints</a>.</p>
+</Docs>

@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+<Base title="Support" description="Get help with Lagsmith." breadcrumbs={[{ name: 'Support', href: '/support' }]}>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Support</h1>
+      <p class="lead">Most questions are answered in the <a href="/docs">docs</a>, the <a href="/docs/faq">FAQ</a> and <a href="/docs/troubleshooting">troubleshooting</a>.</p>
+      <p>Anything else: <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>. Please include your macOS version, your Lagsmith version (menu bar icon › About Lagsmith) and what you expected to happen.</p>
+      <p>Lost your licence key? <a href="/lost-key">Get it again</a>.</p>
+    </div>
+  </section>
+</Base>

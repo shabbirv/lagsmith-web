@@ -1,0 +1,64 @@
+---
+// Thank-you page after checkout. The licence key arrives in the URL fragment (#key=LAGSMITH-...)
+// so it never reaches server logs.
+import Base from '../layouts/Base.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { SITE } from '../config';
+---
+<Base title="Thank you for buying Lagsmith Pro" description="Your Lagsmith Pro licence key." noindex>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Thank you for buying Lagsmith Pro</h1>
+      <div id="has-key" hidden>
+        <p class="lead" id="licence-for">Your licence key is below. We’ve also emailed it to you.</p>
+
+        <h2>1. Get Lagsmith</h2>
+        <p>Already installed? Skip to step 2.</p>
+        <div class="actions"><DownloadButton secondary /></div>
+
+        <h2>2. Activate</h2>
+        <div class="actions"><a class="btn btn-primary" id="activate" href="#">Activate Lagsmith</a></div>
+        <p class="muted">This opens Lagsmith with your key filled in. Click Activate in Lagsmith to unlock Pro.</p>
+
+        <h3>Or activate by hand</h3>
+        <div class="keybox">
+          <code id="key"></code>
+          <button class="btn btn-secondary" id="copy" type="button">Copy</button>
+        </div>
+        <ol>
+          <li>Open Lagsmith.</li>
+          <li>Click the menu bar icon › <strong>Lagsmith Pro…</strong> › <strong>Enter Licence Key…</strong></li>
+          <li>Paste the key (Lagsmith fills it in from the clipboard if you copied it) and click <strong>Activate</strong>.</li>
+        </ol>
+      </div>
+      <div id="no-key">
+        <p class="lead">Your licence key is on its way to your email. If it doesn’t arrive in a few minutes, check your spam folder or <a href="/lost-key">get it again</a>.</p>
+        <p>Need help? <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
+      </div>
+    </div>
+  </section>
+  <script>
+    const params = new URLSearchParams(location.hash.slice(1));
+    const key = params.get('key');
+    if (key && key.startsWith('LAGSMITH-')) {
+      document.getElementById('has-key')!.hidden = false;
+      document.getElementById('no-key')!.hidden = true;
+      document.getElementById('key')!.textContent = key;
+      (document.getElementById('activate') as HTMLAnchorElement).href = `lagsmith://activate?key=${encodeURIComponent(key)}`;
+      try {
+        const b64 = key.slice('LAGSMITH-'.length).split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(b64));
+        if (payload.email) {
+          document.getElementById('licence-for')!.textContent =
+            `Your licence for ${payload.email} is below. We’ve also emailed it to you.`;
+        }
+      } catch {}
+      const copy = document.getElementById('copy')!;
+      copy.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(key);
+        copy.textContent = 'Copied';
+        setTimeout(() => (copy.textContent = 'Copy'), 2000);
+      });
+    }
+  </script>
+</Base>

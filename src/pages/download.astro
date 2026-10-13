@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+import { appSchema } from '../lib';
+---
+<Base
+  title="Download Lagsmith for Mac"
+  description={`Download Lagsmith for Mac. Free with a 14-day Pro trial. Requires ${SITE.minMacOS}, Apple silicon or Intel.`}
+  breadcrumbs={[{ name: 'Download', href: '/download' }]}
+  jsonLd={[appSchema()]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Download Lagsmith</h1>
+      <p class="lead">Free, with a 14-day Pro trial. No account, no card.</p>
+      <div class="actions">
+        {SITE.downloadUrl
+          ? <a class="btn btn-primary" href={SITE.downloadUrl}>Download for Mac</a>
+          : <span class="btn btn-primary" aria-disabled="true">Download coming soon</span>}
+      </div>
+      <p class="muted">{SITE.minMacOS}. Apple silicon and Intel.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Install in a minute</h2>
+      <ol class="steps">
+        <li><strong>Move Lagsmith to Applications</strong> and open it. Its icon appears in the menu bar.</li>
+        <li><strong>Allow the network extension.</strong> Lagsmith uses a network extension to control one app’s network. macOS asks you to allow it once: open System Settings when prompted and allow Lagsmith. This is a standard macOS step for network tools and only happens once.</li>
+        <li><strong>Pick an app</strong> from the menu bar icon and choose a preset.</li>
+      </ol>
+      <div class="callout"><p>Not seeing the prompt? See <a href="/docs/troubleshooting">troubleshooting</a>, or the full <a href="/docs/getting-started">getting started guide</a>.</p></div>
+      <h2>Already bought Pro?</h2>
+      <p>Open the thank-you email and click <strong>Activate Lagsmith</strong>, or paste your key in Lagsmith › Lagsmith Pro… › Enter Licence Key… <a href="/lost-key">Lost your key?</a></p>
+    </div>
+  </section>
+</Base>

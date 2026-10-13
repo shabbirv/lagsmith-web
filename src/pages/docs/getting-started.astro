@@ -1,0 +1,26 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import { SITE } from '../../config';
+import { howToSchema } from '../../lib';
+const steps = [
+  { name: 'Download and install', text: 'Download Lagsmith, move it to Applications and open it. Its icon appears in the menu bar.' },
+  { name: 'Allow the network extension', text: 'macOS asks you to allow Lagsmith’s network extension. Open System Settings when prompted and allow it. You only do this once.' },
+  { name: 'Pick an app', text: 'Click the menu bar icon and pick a running Mac app or an app in a booted iOS Simulator.' },
+  { name: 'Choose conditions', text: 'Choose a preset such as 3G, or a failure mode such as Airplane Mode. Only that app is affected.' },
+];
+---
+<Docs title="Getting started" description="Install Lagsmith, allow its network extension in System Settings, and slow down your first app." jsonLd={[howToSchema('Get started with Lagsmith', 'Install Lagsmith and slow down one app.', steps)]}>
+  <p>Lagsmith needs {SITE.minMacOS}, on Apple silicon or Intel.</p>
+  <ol class="steps">{steps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}</ol>
+  <h2>About the network extension</h2>
+  <p>To control one app’s network without touching the rest of the Mac, Lagsmith installs a network extension. This is the standard way macOS lets apps work with network traffic, and macOS always asks you to approve it. Lagsmith can’t throttle anything until it is allowed.</p>
+  <p>If you missed the prompt, see <a href="/docs/troubleshooting">troubleshooting</a>.</p>
+  <h2>Your trial</h2>
+  <p>Every install starts with a 14-day Pro trial with everything unlocked. After that, the free version keeps working. <a href="/pricing">Pricing</a>.</p>
+  <h2>Next</h2>
+  <ul>
+    <li><a href="/docs/conditions">Presets and custom conditions</a></li>
+    <li><a href="/docs/failures">Failure modes</a></li>
+    <li><a href="/docs/monitoring">Request monitoring</a></li>
+  </ul>
+</Docs>

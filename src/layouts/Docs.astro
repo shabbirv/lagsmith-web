@@ -1,0 +1,36 @@
+---
+import Base from './Base.astro';
+import Cta from '../components/Cta.astro';
+interface Props { title: string; description: string; jsonLd?: object[] }
+const { title, description, jsonLd } = Astro.props;
+
+export const docsNav = [
+  { href: '/docs', label: 'Overview' },
+  { href: '/docs/getting-started', label: 'Getting started' },
+  { href: '/docs/conditions', label: 'Presets and custom conditions' },
+  { href: '/docs/failures', label: 'Failure modes' },
+  { href: '/docs/monitoring', label: 'Request monitoring' },
+  { href: '/docs/automation', label: 'Automation' },
+  { href: '/docs/mcp', label: 'MCP for AI agents' },
+  { href: '/docs/faq', label: 'FAQ' },
+  { href: '/docs/troubleshooting', label: 'Troubleshooting' },
+];
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '');
+const crumbs = [{ name: 'Docs', href: '/docs' }];
+if (path !== '/docs') crumbs.push({ name: title, href: path });
+---
+<Base title={`${title} · Docs`} description={description} breadcrumbs={crumbs} jsonLd={jsonLd}>
+  <div class="wrap docs">
+    <nav class="docs-nav" aria-label="Docs">
+      <ul>
+        {docsNav.map((n) => <li><a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a></li>)}
+      </ul>
+      <p><a href="/network-link-conditioner-alternative">Lagsmith vs. Network Link Conditioner</a></p>
+    </nav>
+    <article class="docs-body">
+      <h1>{title}</h1>
+      <slot />
+    </article>
+  </div>
+  <Cta />
+</Base>

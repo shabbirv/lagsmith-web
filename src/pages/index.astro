@@ -1,0 +1,130 @@
+---
+import Base from '../layouts/Base.astro';
+import NlcTable from '../components/NlcTable.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import AppMock from '../components/AppMock.astro';
+import AgentTerminal from '../components/AgentTerminal.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { SITE, currentPrice } from '../config';
+import PriceTag from '../components/PriceTag.astro';
+
+const launch = currentPrice();
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'How is Lagsmith different from Apple’s Network Link Conditioner?', a: 'Network Link Conditioner slows down the whole Mac. Lagsmith slows down only the apps you pick, including individual apps in the iOS Simulator, and adds failure modes, request monitoring and automation. <a href="/network-link-conditioner-alternative">See the full comparison</a>.' },
+  { q: 'Does it work with the iOS Simulator?', a: 'Yes. Pick an app in a booted simulator and Lagsmith slows down or breaks only that app, even on one simulator device while another runs normally.' },
+  { q: 'Do I need to install a certificate or change proxy settings?', a: 'No. Lagsmith sees the requests of simulator apps without certificates or proxy settings, and everything stays on your Mac.' },
+  { q: 'What does Lagsmith install?', a: 'A network extension. macOS asks you to allow it once in System Settings. <a href="/docs/getting-started">See getting started</a>.' },
+  { q: 'Which Macs does it run on?', a: `${SITE.minMacOS}, on Apple silicon and Intel.` },
+  { q: 'Is there a free version?', a: 'Yes. Every install starts with a 14-day Pro trial with no account or card. After that, the free version keeps working: watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
+  { q: 'Does Lagsmith collect any data?', a: 'No. Everything runs locally, there is no account, and the app has no analytics.' },
+];
+
+const features = [
+  { title: 'Throttle one app', text: 'Pick a running Mac app or an app in a booted iOS Simulator. Use Edge, 3G, DSL, LTE, WiFi or Very Bad Network, or set your own bandwidth, latency, jitter and packet loss. Every other app stays at full speed.', href: '/throttle-ios-simulator' },
+  { title: 'Break it on purpose', text: 'Airplane Mode for one app, refused connections, time-outs, dropped connections and outages that come and go. In the simulator, NWPathMonitor and SCNetworkReachability report no network, like a real device.', href: '/simulate-airplane-mode-ios-simulator' },
+  { title: 'Fail or mock one endpoint', text: 'Make a single API endpoint go offline, time out, return an HTTP status or respond slowly, or mock it with a made-up response starting from the real one. The rest of the app keeps working.', href: '/mock-api-ios-simulator' },
+  { title: 'See every request', text: 'Method, URL, status, timing, headers, bodies, a JSON tree and image previews for simulator apps. Search with filters like status:4xx or -host:cdn, and export as HAR.', href: '/docs/monitoring' },
+  { title: 'Automate it', text: 'Set the network from an XCTest UI test before launching the app, or use the ivar command line tool, lagsmith:// links or the local HTTP API.', href: '/docs/automation' },
+  { title: 'Let your AI agent drive', text: 'The built-in MCP server lets Claude Code, Cursor, Codex and others slow down the app under test, read its requests and mock endpoints, without slowing down the agent itself.', href: '/ai-agents-network-testing' },
+];
+---
+<Base
+  title="Lagsmith: slow down one app, not your whole Mac"
+  description="Lagsmith throttles and breaks the network for one app at a time on your Mac, including iOS Simulator apps. A per-app alternative to Network Link Conditioner."
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        {launch.regularLabel && (
+          <p class="launch-banner"><a href="/pricing"><strong>Launch price:</strong> Lagsmith Pro <s>{launch.regularLabel}</s> {launch.label} until {launch.launchEndsLabel}.</a></p>
+        )}
+        <p class="eyebrow">Network testing for iOS and macOS developers</p>
+        <h1>Slow down one app, not your whole Mac</h1>
+        <p class="lead">Lagsmith slows down and breaks the network for one app at a time, including apps in the iOS Simulator. Your browser, Slack, Xcode and your AI agent stay at full speed.</p>
+        <div class="actions">
+          <DownloadButton />
+          <a class="btn btn-secondary" href="/network-link-conditioner-alternative">Why not Network Link Conditioner?</a>
+        </div>
+        <p class="muted" style="font-size: 0.9rem">Free, with a 14-day Pro trial. No account. {SITE.minMacOS}, Apple silicon and Intel.</p>
+      </div>
+      <div class="mock-wide"><AppMock /></div>
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="wrap">
+      <h2 style="margin-top: 0">Everything you need to test bad networks</h2>
+      <div class="grid">
+        {features.map((f) => (
+          <div class="card">
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+            <p><a href={f.href}>Learn more</a></p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Compared with Apple’s Network Link Conditioner</p>
+      <h2 style="margin-top: 0">Network Link Conditioner, per app</h2>
+      <p class="lead">Network Link Conditioner is a good free tool from Apple. Lagsmith is what you reach for when you need it per app, need real failures, or need to see what’s happening.</p>
+      <NlcTable />
+      <p><a href="/network-link-conditioner-alternative">Read the full comparison</a> · <a href="/network-link-conditioner">How to install and use Network Link Conditioner</a></p>
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="wrap split">
+      <div>
+        <p class="eyebrow">For AI coding agents</p>
+        <h2 style="margin-top: 0">Run your end-to-end tests on 3G without slowing down your agent</h2>
+        <p>Throttle the whole Mac and your AI agent slows down with it. Lagsmith’s built-in MCP server lets Claude Code, Cursor, Codex, Claude Desktop and Windsurf slow down one app, fail an endpoint, relaunch it with monitoring, run your tests and read the failed requests, while the agent itself keeps its full connection.</p>
+        <p><a href="/ai-agents-network-testing">Network testing with AI agents</a> · <a href="/docs/mcp">Set up the MCP server</a></p>
+      </div>
+      <AgentTerminal />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2 style="margin-top: 0">Free to start, Pro when you need it</h2>
+      <div class="plans">
+        <div class="plan">
+          <h3>Free</h3>
+          <ul>
+            <li>Watch any app</li>
+            <li>See its last 50 requests and its connections</li>
+            <li>Slow it down with the Edge preset</li>
+          </ul>
+        </div>
+        <div class="plan pro">
+          <h3>Pro</h3>
+          <PriceTag />
+          <ul>
+            <li>Every preset per app, custom presets and profiles</li>
+            <li>Airplane Mode and failure modes</li>
+            <li>Fail and mock endpoints</li>
+            <li>UI tests, command line and MCP for AI agents</li>
+            <li>Unlimited history, search filters, HAR export, mini monitor</li>
+          </ul>
+        </div>
+      </div>
+      <p>Every install starts with a 14-day Pro trial. <a href="/pricing">See pricing</a></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap narrow">
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <Cta />
+</Base>

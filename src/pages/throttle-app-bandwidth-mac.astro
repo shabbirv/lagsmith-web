@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'Can macOS limit bandwidth for one app?', a: 'Not with built-in settings. Network Link Conditioner limits the whole Mac. Lagsmith limits bandwidth per app.' },
+  { q: 'Which apps can I throttle?', a: 'Any running Mac app, and apps in a booted iOS Simulator.' },
+  { q: 'Can I limit upload and download separately?', a: 'Yes. Set download and upload bandwidth, latency, jitter and packet loss separately, and save them as your own presets.' },
+  { q: 'Can I see what the app is connecting to?', a: 'Yes. For Mac apps Lagsmith shows connections, DNS lookups and TLS details.' },
+];
+---
+<Base
+  title="Throttle bandwidth for one app on Mac"
+  description="Limit one app’s bandwidth on macOS. Set download and upload speed, latency and packet loss per app, while every other app on your Mac stays at full speed."
+  breadcrumbs={[{ name: 'Throttle one Mac app', href: '/throttle-app-bandwidth-mac' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Throttle bandwidth for one app on your Mac</h1>
+      <p class="lead">macOS can throttle the whole Mac with Network Link Conditioner, but not a single app. Lagsmith limits bandwidth for one app on your Mac, with separate download and upload speeds, latency, jitter and packet loss.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Per-app network throttling on Mac</h2>
+      <ol class="steps">
+        <li>Click the Lagsmith menu bar icon and pick a running app.</li>
+        <li>Choose a preset (Edge, 3G, DSL, LTE, WiFi, Very Bad Network) or set custom download and upload bandwidth, latency, jitter and packet loss.</li>
+        <li>Optionally limit the rule to some hosts, or to everything except one.</li>
+      </ol>
+      <p>Only that app is affected. Save your settings as a custom preset to reuse them.</p>
+      <h2>See what the app does on the network</h2>
+      <p>For Mac apps, Lagsmith shows connections, DNS lookups and TLS details, so you can see what slowed down and what failed. Everything stays on your Mac.</p>
+      <h2>Break it, too</h2>
+      <p>Put the app in Airplane Mode, refuse connections, time out requests or drop connections after a few seconds. <a href="/docs/failures">Failure modes</a>.</p>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

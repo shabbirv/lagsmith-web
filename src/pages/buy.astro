@@ -1,0 +1,25 @@
+---
+// The app's "Buy Lagsmith Pro" button opens this URL; it must always exist.
+import Base from '../layouts/Base.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { SITE, currentPrice } from '../config';
+const launch = currentPrice();
+---
+<Base title="Buy Lagsmith Pro" description="Buy Lagsmith Pro." noindex>
+  {SITE.checkoutUrl && <meta http-equiv="refresh" content={`0;url=${SITE.checkoutUrl}`} slot="head" />}
+  <section class="page-head center">
+    <div class="wrap narrow">
+      <h1>Buy Lagsmith Pro</h1>
+      {SITE.checkoutUrl ? (
+        <p class="lead">Taking you to checkout… <a href={SITE.checkoutUrl}>Continue</a> if nothing happens.</p>
+      ) : (
+        <>
+          <p class="lead">Lagsmith Pro purchases open soon. In the meantime, every install includes a 14-day Pro trial.</p>
+          {launch.regularLabel && <p><strong>Launch price: <s class="muted">{launch.regularLabel}</s> {launch.label}</strong> until {launch.launchEndsLabel}. {launch.launchReason}</p>}
+          <div class="actions"><DownloadButton /></div>
+          <p class="muted">Questions? <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
+        </>
+      )}
+    </div>
+  </section>
+</Base>

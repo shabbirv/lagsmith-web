@@ -1,0 +1,20 @@
+---
+import Docs from '../../layouts/Docs.astro';
+import Faq from '../../components/Faq.astro';
+import { SITE } from '../../config';
+import { faqSchema } from '../../lib';
+const faq = [
+  { q: 'Does Lagsmith slow down my whole Mac?', a: 'No. Only the apps you pick. Everything else stays at full speed.' },
+  { q: 'Does it work with the iOS Simulator?', a: 'Yes, per app and even per simulator device.' },
+  { q: 'Does it work on a physical iPhone?', a: 'No. Lagsmith works on Mac apps and iOS Simulator apps. On a physical device, use Network Link Conditioner in Settings › Developer.' },
+  { q: 'Do I need certificates or proxy settings?', a: 'No.' },
+  { q: 'Why does it need a network extension?', a: 'A network extension is how macOS lets an app control network traffic. macOS asks you to allow it once.' },
+  { q: 'Which macOS versions are supported?', a: `${SITE.minMacOS}, on Apple silicon and Intel.` },
+  { q: 'Does Lagsmith send my data anywhere?', a: 'No. Everything runs locally, there is no account and the app has no analytics.' },
+  { q: 'What does the free version include?', a: 'Watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
+  { q: 'Can I use Lagsmith alongside Network Link Conditioner?', a: 'Yes, but if Network Link Conditioner is on it slows down the whole Mac, including apps Lagsmith leaves alone.' },
+];
+---
+<Docs title="FAQ" description="Answers to common questions about Lagsmith." jsonLd={[faqSchema(faq)]}>
+  <Faq items={faq} title="" />
+</Docs>

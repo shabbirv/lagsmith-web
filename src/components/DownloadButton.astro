@@ -1,0 +1,9 @@
+---
+import { SITE } from '../config';
+interface Props { label?: string; secondary?: boolean }
+const { label = 'Download for Mac', secondary = false } = Astro.props;
+const cls = `btn ${secondary ? 'btn-secondary' : 'btn-primary'}`;
+---
+{SITE.downloadUrl
+  ? <a class={cls} href={SITE.downloadUrl}>{label}</a>
+  : <a class={cls} href="/download">{label}</a>}

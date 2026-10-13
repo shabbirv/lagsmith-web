@@ -1,0 +1,154 @@
+---
+// A drawn copy of Lagsmith's main window, used until real screenshots are added.
+import MockAppIcon from './MockAppIcon.astro';
+import type { MockIcon } from './MockAppIcon.astro';
+
+interface Props { variant?: 'mac' | 'simulator' }
+const { variant = 'mac' } = Astro.props;
+const mac = variant === 'mac';
+
+interface SideApp { name: string; sub: string; icon: MockIcon; selected?: boolean }
+const macApps: SideApp[] = [
+  { name: 'Waypoint', sub: mac ? '3G' : 'Off', icon: 'waypoint', selected: mac },
+  { name: 'Inkwell', sub: 'Off', icon: 'inkwell' },
+  { name: 'Harbor Mail', sub: 'Off', icon: 'harbor' },
+];
+const simApps: SideApp[] = [
+  { name: 'Pantry', sub: 'iPhone 17 Pro', icon: 'pantry', selected: !mac },
+  { name: 'Tempo', sub: 'iPad Air (M3)', icon: 'tempo' },
+  { name: 'Pulse', sub: 'iPhone 17 Pro', icon: 'pulse' },
+];
+
+const app = mac
+  ? { name: 'Waypoint', id: 'com.waypointhq.Waypoint', icon: 'waypoint' as MockIcon, preset: '3G', failures: 'No Failures', status: '3G: 780 kbps down, 200 ms latency. Every other app runs at full speed.' }
+  : { name: 'Pantry', id: 'iPhone 17 Pro · com.pantryhq.Pantry', icon: 'pantry' as MockIcon, preset: 'Very Bad Network', failures: 'Time-outs', status: 'Very Bad Network for Pantry on this simulator only. Other simulator apps and your Mac run at full speed.' };
+
+const rows = mac
+  ? [
+      ['api.waypointhq.app', 'TCP', '248 KB', '31 KB', '6.8 s', 'Open'],
+      ['tiles.waypointhq.app', 'TCP', '12.4 MB', '18 KB', '41.2 s', 'Open'],
+      ['api.revenuecat.com', 'TCP', '14 KB', '3 KB', '2.1 s', 'Closed'],
+      ['tiles.waypointhq.app', 'DNS', '–', '–', '212 ms', 'Resolved'],
+      ['o4507.ingest.sentry.io', 'TCP', '2 KB', '11 KB', '1.9 s', 'Closed'],
+    ]
+  : [
+      ['api.pantryhq.app', 'TCP', '84 KB', '6 KB', '4.2 s', 'Open'],
+      ['api.pantryhq.app', 'TCP', '–', '3 KB', '30.0 s', 'Timed out'],
+      ['images.pantryhq.app', 'TCP', '1.1 MB', '2 KB', '12.6 s', 'Closed'],
+      ['api.revenuecat.com', 'TCP', '–', '1 KB', '30.0 s', 'Timed out'],
+      ['firebaselogging-pa.googleapis.com', 'DNS', '–', '–', '540 ms', 'Resolved'],
+    ];
+
+const label = mac
+  ? 'Illustration of the Lagsmith window: the Mac app Waypoint is set to 3G and being watched, with a list of its connections. Other Mac apps and simulator apps are off.'
+  : 'Illustration of the Lagsmith window: Pantry on the iPhone 17 Pro simulator is set to Very Bad Network with time-outs, and two of its connections have timed out. Other simulator apps are off.';
+---
+<div class="win" role="img" aria-label={label}>
+  <div class="win-side" aria-hidden="true">
+    <div class="win-lights"><i></i><i></i><i></i></div>
+    <div class="win-sec">Mac Apps</div>
+    {macApps.map((a) => (
+      <div class:list={['win-app', { sel: a.selected }]}>
+        <MockAppIcon icon={a.icon} />
+        <span class="win-app-txt"><b>{a.name}</b><small>{a.sub}</small></span>
+        <span class:list={['win-btn', { stop: a.selected }]}></span>
+      </div>
+    ))}
+    <div class="win-sec">iOS Simulator</div>
+    {simApps.map((a) => (
+      <div class:list={['win-app', { sel: a.selected }]}>
+        <MockAppIcon icon={a.icon} />
+        <span class="win-app-txt"><b>{a.name}</b><small>{a.sub}</small></span>
+        <span class:list={['win-btn', { stop: a.selected }]}></span>
+      </div>
+    ))}
+  </div>
+  <div class="win-main" aria-hidden="true">
+    <div class="win-top"><span class="win-pill-status"><i></i>Watching 1 app · 1 throttled</span></div>
+    <div class="win-head">
+      <MockAppIcon icon={app.icon} size={40} />
+      <span class="win-title"><b>{app.name}</b><small>{app.id}</small></span>
+      <span class="win-toggle"><span>Watching</span><i></i></span>
+    </div>
+    <div class="win-pills">
+      <span class="win-pill hot">
+        <svg class="pi" viewBox="0 0 16 16"><path d="M2.5 11.5a6 6 0 1 1 11 0" /><path d="M8 10 11 5.5" /><circle cx="8" cy="10" r="1.1" class="fill" /></svg>
+        {app.preset}<svg class="chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" /></svg>
+      </span>
+      <span class:list={['win-pill', { hot: variant === 'simulator' }]}>
+        <svg class="pi" viewBox="0 0 16 16"><path d="M1 9h3l2-5 3 9 2-6 1 2h3" /></svg>
+        {app.failures}<svg class="chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" /></svg>
+      </span>
+      <span class="win-pill">
+        <svg class="pi" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" /><ellipse cx="8" cy="8" rx="2.6" ry="6.2" /><path d="M2 8h12" /></svg>
+        All Hosts<svg class="chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" /></svg>
+      </span>
+    </div>
+    <p class="win-status">{app.status}</p>
+    <div class="win-tabs"><span class="on">Connections</span><span>Hosts</span><span class="win-search"><svg class="pi" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" /><path d="M10.4 10.4 14 14" /></svg>Search hosts, addresses and lookups</span></div>
+    <table class="win-table">
+      <thead><tr><th>Host</th><th>Type</th><th>↓ Received</th><th class="hide-narrow">↑ Sent</th><th class="hide-narrow">Time</th><th>Status</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <td>{r[0]}</td><td>{r[1]}</td><td>{r[2]}</td><td class="hide-narrow">{r[3]}</td><td class="hide-narrow">{r[4]}</td>
+            <td class:list={{ bad: r[5] === 'Timed out' }}>{r[5]}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .win { display: grid; grid-template-columns: 230px 1fr; border-radius: 14px; overflow: hidden; background: #262321; color: #ece8e4; font-size: 13px; line-height: 1.35; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 80px -24px rgba(15,26,43,0.55); text-align: left; }
+  .win-side { background: #302c2a; padding: 12px 10px 16px; border-right: 1px solid rgba(0,0,0,0.35); }
+  .win-lights { display: flex; gap: 7px; padding: 2px 4px 14px; }
+  .win-lights i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+  .win-lights i:nth-child(2) { background: #febc2e; }
+  .win-lights i:nth-child(3) { background: #28c840; }
+  .win-sec { font-size: 11px; font-weight: 600; color: #a39d98; margin: 10px 6px 6px; }
+  .win-app { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 8px; }
+  .win-app.sel { background: rgba(255,255,255,0.09); }
+  .win-app-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .win-app-txt b { font-weight: 500; }
+  .win-app-txt small, .win-title small { color: #a39d98; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .win-btn { width: 18px; height: 18px; border-radius: 50%; background: #0a84ff; position: relative; flex-shrink: 0; }
+  .win-btn::after { content: ''; position: absolute; left: 7px; top: 5px; border-left: 6px solid #fff; border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+  .win-btn.stop { background: #ff453a; }
+  .win-btn.stop::after { left: 6px; top: 6px; width: 6px; height: 6px; border: 0; background: #fff; border-radius: 1px; }
+  .win-main { padding: 10px 18px 16px; min-width: 0; }
+  .win-top { display: flex; justify-content: flex-end; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); margin: 0 -18px 12px; padding-right: 12px; }
+  .win-pill-status { background: rgba(48,209,88,0.14); color: #e6f6ea; font-weight: 600; font-size: 12px; padding: 4px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
+  .win-pill-status i { width: 7px; height: 7px; border-radius: 50%; background: #30d158; }
+  .win-head { display: flex; align-items: center; gap: 12px; }
+  .win-title { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .win-title b { font-size: 17px; font-weight: 700; }
+  .win-toggle { display: flex; align-items: center; gap: 8px; color: #cfc9c4; }
+  .win-toggle i { width: 34px; height: 20px; border-radius: 999px; background: #30d158; position: relative; }
+  .win-toggle i::after { content: ''; position: absolute; right: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+  .win-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 8px; }
+  .win-pill { display: inline-flex; align-items: center; gap: 6px; height: 26px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0 10px; color: #cfc9c4; font-weight: 500; line-height: 1; }
+  .win svg { flex-shrink: 0; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+  .win svg .fill { fill: currentColor; stroke: none; }
+  .pi { width: 14px; height: 14px; stroke-width: 1.6; }
+  .chev { width: 9px; height: 6px; stroke-width: 1.6; margin-left: 2px; opacity: 0.8; }
+  .win-pill.hot { color: #ff9f0a; border-color: rgba(255,159,10,0.35); background: rgba(255,159,10,0.08); }
+  .win-status { color: #cfc9c4; margin: 0 0 12px; font-size: 12.5px; }
+  .win-tabs { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+  .win-tabs span { padding: 3px 10px; border-radius: 6px; font-weight: 500; }
+  .win-tabs .on { background: #0a84ff; color: #fff; }
+  .win-tabs .win-search { flex: 1; margin-left: 6px; background: rgba(255,255,255,0.05); color: #8f8984; font-weight: 400; white-space: nowrap; overflow: hidden; display: inline-flex; align-items: center; gap: 6px; }
+  .win-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0; }
+  .win-table th { text-align: left; font-weight: 600; color: #ece8e4; background: none; text-transform: none; letter-spacing: 0; font-size: 12px; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .win-table td { padding: 6px 8px; border: 0; font-weight: 400; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .win-table td:first-child { font-weight: 400; }
+  .win-table tbody tr:nth-child(odd) td { background: rgba(255,255,255,0.035); }
+  .win-table td.bad { color: #ff6961; }
+  @media (max-width: 760px) {
+    .win { grid-template-columns: 1fr; }
+    .win-side { display: none; }
+    .hide-narrow { display: none; }
+    .win-table td:first-child { white-space: normal; word-break: break-all; }
+  }
+</style>

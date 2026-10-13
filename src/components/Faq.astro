@@ -1,0 +1,14 @@
+---
+import type { QA } from '../lib';
+interface Props { items: QA[]; title?: string }
+const { items, title = 'Frequently asked questions' } = Astro.props;
+---
+<section class="faq">
+  <h2>{title}</h2>
+  {items.map((i) => (
+    <details>
+      <summary>{i.q}</summary>
+      <p set:html={i.a} />
+    </details>
+  ))}
+</section>

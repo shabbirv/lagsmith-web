@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const faq = [
+  { q: 'How do I simulate 3G on a Mac?', a: 'Pick the app in Lagsmith and choose the 3G preset (780 kbps down, 200 ms latency). Only that app slows down.' },
+  { q: 'Can I add jitter and packet loss?', a: 'Yes. Custom conditions include download and upload bandwidth, latency, jitter and packet loss.' },
+  { q: 'Can conditions change during a test?', a: 'Yes. Profiles change conditions over time instead of holding one fixed speed.' },
+  { q: 'Can I run slow-network tests in CI?', a: 'Yes. Use the XCTest UI test helper, the ivar command line tool or the local HTTP API. <a href="/docs/automation">Automation docs</a>.' },
+];
+---
+<Base
+  title="Simulate a slow network for iOS and Mac apps"
+  description="Simulate slow networks for one app: 3G, Edge, high latency, jitter and packet loss. Test loading states, retries and timeouts in iOS Simulator and Mac apps."
+  breadcrumbs={[{ name: 'Simulate a slow network', href: '/simulate-slow-network' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Simulate a slow network and test your app on bad connections</h1>
+      <p class="lead">Loading states, retries, timeouts and offline handling only get tested if you simulate a slow network. Lagsmith does it for one app at a time, with presets in real numbers and conditions that change over time.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">What to test on a slow network</h2>
+      <ul>
+        <li><strong>Loading states</strong>: does a spinner or skeleton appear, or a blank screen?</li>
+        <li><strong>Timeouts</strong>: what happens when a request takes 30 seconds?</li>
+        <li><strong>Retries</strong>: does the app retry, and does it give up sensibly?</li>
+        <li><strong>Double submits</strong>: can the user tap Pay twice while the first request is slow?</li>
+        <li><strong>Images and large downloads</strong> on Edge and 3G.</li>
+        <li><strong>Going offline</strong> mid-request. <a href="/simulate-airplane-mode-ios-simulator">Airplane Mode for one app</a>.</li>
+      </ul>
+      <h2>Slow networks, in numbers</h2>
+      <p>Lagsmith includes Edge, 3G, DSL, LTE, WiFi, Very Bad Network and 100% Loss, by the same names as Apple’s Network Link Conditioner. For example, 3G is 780 kbps down with 200 ms latency. Or set your own:</p>
+      <ul>
+        <li>download and upload bandwidth,</li>
+        <li>latency and jitter,</li>
+        <li>packet loss,</li>
+        <li>which hosts it applies to.</li>
+      </ul>
+      <p>Profiles change conditions over time, so you can test a connection that gets worse and recovers.</p>
+      <h2>Without slowing down your Mac</h2>
+      <p>Only the app you pick is slowed down. <a href="/network-link-conditioner-alternative">How this compares with Network Link Conditioner</a>.</p>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

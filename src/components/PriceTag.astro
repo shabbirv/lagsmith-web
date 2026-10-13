@@ -1,0 +1,13 @@
+---
+import { currentPrice } from '../config';
+const p = currentPrice();
+---
+<p class="price">
+  {p.regularLabel && <s class="muted" style="font-weight: 500">{p.regularLabel}</s>}
+  {p.label} <span class="muted" style="font-size: 1rem; font-weight: 500">{p.regularLabel ? 'launch price' : 'one-time'}</span>
+</p>
+<p class="muted" style="margin-top: 0">
+  {p.regularLabel
+    ? <>{p.launchReason} Until {p.launchEndsLabel}, then {p.regularLabel}. One-time purchase with a year of updates.</>
+    : <>One-time purchase. Includes a year of updates, and your version keeps working forever.</>}
+</p>

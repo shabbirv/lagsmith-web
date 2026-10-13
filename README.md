@@ -15,7 +15,8 @@ The build has three steps after `astro build`:
 - `scripts/markdown.mjs` writes a Markdown copy of each page (`dist/pricing.md`). `.htaccess` serves it to clients that send `Accept: text/markdown`; `/llms.txt` links to them.
 - `scripts/indexnow.mjs` submits changed pages to Bing via IndexNow. The key is `public/<key>.txt`; what's been announced is in `.indexnow-state.json`.
 
-- Open decisions (support email, download URL, checkout URL, price) are in `src/config.ts`. Setting `checkoutUrl` turns `/buy` into a redirect to checkout; setting `downloadUrl` enables every download button.
+- Open decisions (support email, download URL, price, Paddle checkout) are in `src/config.ts`. `paddle.enabled` turns on the checkout at `/buy` (until then it only opens at `/buy?sandbox=1`); setting `downloadUrl` enables every download button.
+- `server/licence.mjs` is the licence service (systemd `lagsmith-licence`, Apache forwards `/api/` to 127.0.0.1:8787). It verifies Paddle webhooks, signs licence keys with `/etc/lagsmith/license-signing-key`, stores orders in `/var/lib/lagsmith/orders.json` and emails keys through Postmark. Secrets live in `/etc/lagsmith/*.env`, never in git. Restart it after changing those: `systemctl restart lagsmith-licence`.
 - Clean URLs, www → apex and caching rules are in `public/.htaccess`.
 - `/thanks#key=LAGSMITH-...` shows the licence key and the `lagsmith://activate?key=` button. The key goes in the URL fragment so it never reaches server logs.
 - `brand/lagsmith-icon-1024.webp` is the source app icon; `public/icon-*.png`, `favicon.*`, `apple-touch-icon.png` and `og.png` are generated from it.

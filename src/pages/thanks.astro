@@ -1,6 +1,7 @@
 ---
-// Thank-you page after checkout. The licence key arrives in the URL fragment (#key=LAGSMITH-...)
-// so it never reaches server logs.
+// Thank-you page after checkout. Two ways in:
+//   /thanks?txn=txn_…        from checkout: the licence is fetched from the licence service
+//   /thanks#key=LAGSMITH-…   a key in the URL fragment, which never reaches server logs
 import Base from '../layouts/Base.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import { SITE } from '../config';
@@ -9,6 +10,11 @@ import { SITE } from '../config';
   <section class="page-head">
     <div class="wrap narrow">
       <h1>Thank you for buying Lagsmith Pro</h1>
+
+      <div id="waiting" hidden>
+        <p class="lead">Getting your licence key…</p>
+      </div>
+
       <div id="has-key" hidden>
         <p class="lead" id="licence-for">Your licence key is below. We’ve also emailed it to you.</p>
 
@@ -31,34 +37,63 @@ import { SITE } from '../config';
           <li>Paste the key (Lagsmith fills it in from the clipboard if you copied it) and click <strong>Activate</strong>.</li>
         </ol>
       </div>
+
       <div id="no-key">
-        <p class="lead">Your licence key is on its way to your email. If it doesn’t arrive in a few minutes, check your spam folder or <a href="/lost-key">get it again</a>.</p>
+        <p class="lead" id="no-key-text">Your licence key is on its way to your email. If it doesn’t arrive in a few minutes, check your spam folder or <a href="/lost-key">get it again</a>.</p>
         <p>Need help? <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
       </div>
     </div>
   </section>
   <script>
-    const params = new URLSearchParams(location.hash.slice(1));
-    const key = params.get('key');
-    if (key && key.startsWith('LAGSMITH-')) {
-      document.getElementById('has-key')!.hidden = false;
-      document.getElementById('no-key')!.hidden = true;
-      document.getElementById('key')!.textContent = key;
-      (document.getElementById('activate') as HTMLAnchorElement).href = `lagsmith://activate?key=${encodeURIComponent(key)}`;
-      try {
-        const b64 = key.slice('LAGSMITH-'.length).split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(atob(b64));
-        if (payload.email) {
-          document.getElementById('licence-for')!.textContent =
-            `Your licence for ${payload.email} is below. We’ve also emailed it to you.`;
-        }
-      } catch {}
-      const copy = document.getElementById('copy')!;
+    const $ = (id: string) => document.getElementById(id)!;
+
+    function show(key: string, email?: string) {
+      $('waiting').hidden = true;
+      $('no-key').hidden = true;
+      $('has-key').hidden = false;
+      $('key').textContent = key;
+      ($('activate') as HTMLAnchorElement).href = `lagsmith://activate?key=${encodeURIComponent(key)}`;
+      if (!email) {
+        try {
+          const b64 = key.slice('LAGSMITH-'.length).split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
+          email = JSON.parse(atob(b64)).email;
+        } catch {}
+      }
+      if (email) $('licence-for').textContent = `Your licence for ${email} is below. We’ve also emailed it to you.`;
+      const copy = $('copy');
       copy.addEventListener('click', async () => {
         await navigator.clipboard.writeText(key);
         copy.textContent = 'Copied';
         setTimeout(() => (copy.textContent = 'Copy'), 2000);
       });
     }
+
+    async function fetchLicence(txn: string) {
+      $('no-key').hidden = true;
+      $('waiting').hidden = false;
+      // Paddle's notification can take a few seconds; keep asking for up to a minute.
+      for (let attempt = 0; attempt < 20; attempt++) {
+        try {
+          const res = await fetch(`/api/licence?txn=${encodeURIComponent(txn)}`);
+          const body = await res.json();
+          if (body.status === 'ready') return show(body.licence, body.email);
+          if (body.status === 'refunded') {
+            $('waiting').hidden = true;
+            $('no-key').hidden = false;
+            $('no-key-text').textContent = 'This purchase has been refunded, so its licence is no longer active.';
+            return;
+          }
+          if (res.status === 404 || res.status === 400) break;
+        } catch {}
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+      $('waiting').hidden = true;
+      $('no-key').hidden = false;
+    }
+
+    const key = new URLSearchParams(location.hash.slice(1)).get('key');
+    const txn = new URLSearchParams(location.search).get('txn');
+    if (key?.startsWith('LAGSMITH-')) show(key);
+    else if (txn) fetchLicence(txn);
   </script>
 </Base>

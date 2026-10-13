@@ -2,12 +2,55 @@
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config';
 ---
-<Base title="Lost your licence key?" description="Get your Lagsmith Pro licence key again." breadcrumbs={[{ name: 'Lost your key?', href: '/lost-key' }]}>
+<Base title="Lost your licence key?" description="Get your Lagsmith Pro licence key emailed to you again." breadcrumbs={[{ name: 'Lost your key?', href: '/lost-key' }]}>
   <section class="page-head">
     <div class="wrap narrow">
       <h1>Lost your licence key?</h1>
-      <p class="lead">First, search your email for “Lagsmith”. The email with your key also has an Activate Lagsmith button.</p>
-      <p>Still can’t find it? Email <a href={`mailto:${SITE.supportEmail}?subject=Lost%20licence%20key`}>{SITE.supportEmail}</a> from the address you bought with, and we’ll send it again.</p>
+      <p class="lead">Enter the email address you bought Lagsmith Pro with, and we’ll send your key again.</p>
+
+      <form id="lost-key" class="lost-key-form">
+        <label for="email">Email address</label>
+        <div class="lost-key-row">
+          <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com" />
+          <button class="btn btn-primary" type="submit">Send my key</button>
+        </div>
+      </form>
+      <p id="lost-key-result" role="status"></p>
+
+      <p class="muted">Bought with a different address, or nothing arrives? Email <a href={`mailto:${SITE.supportEmail}?subject=Lost%20licence%20key`}>{SITE.supportEmail}</a> with your order number from Paddle’s receipt.</p>
     </div>
   </section>
+
+  <script>
+    const form = document.getElementById('lost-key') as HTMLFormElement;
+    const result = document.getElementById('lost-key-result')!;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+      const button = form.querySelector('button')!;
+      button.disabled = true;
+      try {
+        const res = await fetch('/api/lost-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        result.textContent =
+          res.status === 429 ? 'Too many requests. Please try again in an hour.'
+          : res.ok ? `If ${email} has bought Lagsmith Pro, its licence key is on its way. Check your spam folder if it doesn’t arrive in a few minutes.`
+          : 'That doesn’t look like a valid email address.';
+      } catch {
+        result.textContent = 'Something went wrong. Please try again, or email us.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+
+  <style>
+    .lost-key-form label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .lost-key-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .lost-key-row input { flex: 1; min-width: 220px; font: inherit; padding: 0.65em 0.9em; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+    #lost-key-result { margin-top: 1em; }
+  </style>
 </Base>

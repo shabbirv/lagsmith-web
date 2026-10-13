@@ -1,25 +1,75 @@
 ---
 // The app's "Buy Lagsmith Pro" button opens this URL; it must always exist.
+// Opens Paddle's overlay checkout, applying the launch discount while it runs. After payment,
+// the buyer goes to /thanks?txn=… where the licence key is fetched from the licence service.
 import Base from '../layouts/Base.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import { SITE, currentPrice } from '../config';
+
 const launch = currentPrice();
+const checkout = {
+  enabled: SITE.paddle.enabled,
+  environment: SITE.paddle.environment,
+  token: SITE.paddle.clientToken,
+  priceId: SITE.paddle.priceId,
+  discountId: launch.regularLabel ? SITE.paddle.launchDiscountId : null,
+};
 ---
 <Base title="Buy Lagsmith Pro" description="Buy Lagsmith Pro." noindex>
-  {SITE.checkoutUrl && <meta http-equiv="refresh" content={`0;url=${SITE.checkoutUrl}`} slot="head" />}
   <section class="page-head center">
     <div class="wrap narrow">
       <h1>Buy Lagsmith Pro</h1>
-      {SITE.checkoutUrl ? (
-        <p class="lead">Taking you to checkout… <a href={SITE.checkoutUrl}>Continue</a> if nothing happens.</p>
-      ) : (
-        <>
-          <p class="lead">Lagsmith Pro purchases open soon. In the meantime, every install includes a 14-day Pro trial.</p>
-          {launch.regularLabel && <p><strong>Launch price: <s class="muted">{launch.regularLabel}</s> {launch.label}</strong> until {launch.launchEndsLabel}. {launch.launchReason}</p>}
-          <div class="actions"><DownloadButton /></div>
-          <p class="muted">Questions? <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
-        </>
-      )}
+      <p class="lead">
+        {launch.regularLabel
+          ? <><s class="muted">{launch.regularLabel}</s> <strong>{launch.label}</strong> launch price until {launch.launchEndsLabel}. One-time purchase with a year of updates.</>
+          : <><strong>{launch.label}</strong>, one-time purchase with a year of updates.</>}
+      </p>
+
+      <div id="checkout-ready" hidden>
+        <div class="actions"><button class="btn btn-primary" id="open-checkout" type="button">Continue to checkout</button></div>
+        <p class="muted" style="font-size: 0.9rem">Payments are handled by Paddle, our reseller. Sales tax or VAT is added where it applies. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>, no questions asked.</p>
+      </div>
+
+      <div id="checkout-off">
+        <p>Lagsmith Pro purchases open soon. In the meantime, every install includes a 14-day Pro trial.</p>
+        <div class="actions"><DownloadButton /></div>
+        <p class="muted">Questions? <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
+      </div>
     </div>
   </section>
+
+  <script is:inline src="https://cdn.paddle.com/paddle/v2/paddle.js" defer></script>
+  <script is:inline define:vars={{ checkout }}>
+    window.addEventListener('load', () => {
+      const testing = new URLSearchParams(location.search).has('sandbox');
+      if (!(checkout.enabled || testing) || !window.Paddle) return;
+
+      document.getElementById('checkout-off').hidden = true;
+      document.getElementById('checkout-ready').hidden = false;
+
+      if (checkout.environment === 'sandbox') Paddle.Environment.set('sandbox');
+      Paddle.Initialize({
+        token: checkout.token,
+        eventCallback: (event) => {
+          if (event.name === 'checkout.completed' && event.data?.transaction_id) {
+            location.href = `/thanks?txn=${encodeURIComponent(event.data.transaction_id)}`;
+          }
+        },
+      });
+
+      const open = () =>
+        Paddle.Checkout.open({
+          items: [{ priceId: checkout.priceId, quantity: 1 }],
+          ...(checkout.discountId ? { discountId: checkout.discountId } : {}),
+          settings: {
+            displayMode: 'overlay',
+            theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+            locale: 'en',
+          },
+        });
+
+      document.getElementById('open-checkout').addEventListener('click', open);
+      open();
+    });
+  </script>
 </Base>

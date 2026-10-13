@@ -12,8 +12,15 @@ export const SITE = {
   // TBD: hosted download (signed and notarized .dmg). null shows "coming soon".
   downloadUrl: null as string | null,
 
-  // TBD: hosted Paddle checkout. /buy redirects here. null shows "coming soon".
-  checkoutUrl: null as string | null,
+  // Paddle checkout on /buy. While `enabled` is false, visitors see "coming soon" and the
+  // checkout only opens at /buy?sandbox=1 for testing. The client token is public by design.
+  paddle: {
+    enabled: false,
+    environment: 'sandbox' as 'sandbox' | 'production',
+    clientToken: 'test_1e9a9d73ece13ea840a0f6e75b5',
+    priceId: 'pri_01m4vs8pez19rahekb0d7y9sfm',
+    launchDiscountId: 'dsc_01m4vs8pj79w08xhb40jvwdamg',
+  },
 
   // Pro is a one-time purchase that includes a year of updates.
   // Launch pricing: set regularAmount and launchEnds (YYYY-MM-DD, last day of the offer) to show

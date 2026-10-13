@@ -12,11 +12,14 @@ interface Props {
   noindex?: boolean;
 }
 
-const { title, description, ogImage = '/og.png', breadcrumbs, jsonLd = [], noindex = false } = Astro.props;
+const { title, description, ogImage, breadcrumbs, jsonLd = [], noindex = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/$/, '') || '/';
+// Each indexable page gets its own share card, drawn after the build by scripts/og-images.mjs.
+const ogPath = ogImage ?? (noindex ? '/og.png' : `/og${path === '/' ? '/home' : path}.png`);
+const ogAlt = path === '/' ? 'Lagsmith: slow down one app, not your whole Mac' : `Lagsmith: ${title}`;
 const canonical = new URL(path, SITE.url).href.replace(/\/$/, path === '/' ? '/' : '');
 const fullTitle = path === '/' ? title : `${title} | Lagsmith`;
-const ogUrl = new URL(ogImage, SITE.url).href;
+const ogUrl = new URL(ogPath, SITE.url).href;
 
 const schemas: object[] = [...jsonLd];
 if (breadcrumbs?.length) {
@@ -62,10 +65,14 @@ const isCurrent = (href: string) => path === href || (href !== '/' && path.start
     <meta property="og:image" content={ogUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogUrl} />
+    <meta name="twitter:image:alt" content={ogAlt} />
+    <link rel="alternate" type="text/markdown" href={`${path === '/' ? '/index' : path}.md`} title="Markdown version" />
 
     {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
     <slot name="head" />

@@ -10,7 +10,7 @@ import { SITE, currentPrice } from '../config';
 import PriceTag from '../components/PriceTag.astro';
 
 const launch = currentPrice();
-import { appSchema, faqSchema } from '../lib';
+import { appSchema, faqSchema, siteSchemas } from '../lib';
 
 const faq = [
   { q: 'How is Lagsmith different from Apple’s Network Link Conditioner?', a: 'Network Link Conditioner slows down the whole Mac. Lagsmith slows down only the apps you pick, including individual apps in the iOS Simulator, and adds failure modes, request monitoring and automation. <a href="/network-link-conditioner-alternative">See the full comparison</a>.' },
@@ -34,7 +34,7 @@ const features = [
 <Base
   title="Lagsmith: slow down one app, not your whole Mac"
   description="Lagsmith throttles and breaks the network for one app at a time on your Mac, including iOS Simulator apps. A per-app alternative to Network Link Conditioner."
-  jsonLd={[appSchema(), faqSchema(faq)]}
+  jsonLd={[...siteSchemas(), appSchema(), faqSchema(faq)]}
 >
   <section class="hero">
     <div class="wrap">

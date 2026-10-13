@@ -2,6 +2,10 @@
 // An illustrative Claude Code session using Lagsmith's MCP server. Lines appear one by one
 // when the terminal scrolls into view. The whole transcript is in the HTML for search engines
 // and screen readers; the animation only reveals it.
+// variant="short" is a five-step version for the home page.
+
+interface Props { variant?: 'full' | 'short' }
+const { variant = 'full' } = Astro.props;
 
 type Block =
   | { t: 'prompt'; text: string }
@@ -10,7 +14,7 @@ type Block =
   | { t: 'bash'; cmd: string }
   | { t: 'out'; text: string };
 
-const blocks: Block[] = [
+const full: Block[] = [
   { t: 'prompt', text: 'Run the checkout UI tests on 3G with the payments API returning 503s, and tell me what breaks.' },
   { t: 'say', text: 'I’ll find the app in the simulator first.' },
   { t: 'call', tool: 'list_targets' },
@@ -30,6 +34,19 @@ const blocks: Block[] = [
   { t: 'say', text: 'Found it. On 3G the cart and coupon flows are fine, but when payments returns 503:\n\n1. PaymentService retries 3 times with no backoff (0.4 s apart), then gives up silently.\n2. The checkout screen keeps its spinner forever: there’s no error state for a failed\n   payment, so testPlaceOrder times out waiting for "Order confirmed".\n\nWant me to add exponential backoff and an error state with a "Try again" button in\nCheckoutView, then rerun the tests under the same conditions?' },
 ];
 
+const short: Block[] = [
+  { t: 'prompt', text: 'Test checkout on 3G with the payments API returning 503s.' },
+  { t: 'call', tool: 'set_network', args: 'app: "com.pantryhq.Pantry", preset: "3G"' },
+  { t: 'out', text: '{"ok": true, "preset": "3G", "conditions": {"down": 780, "latency": 200}}' },
+  { t: 'call', tool: 'fail_endpoint', args: 'pattern: "api.pantryhq.app/v1/payments", kind: "status", value: 503' },
+  { t: 'out', text: '{"ok": true}' },
+  { t: 'bash', cmd: 'xcodebuild test -scheme PantryUITests -only-testing:PantryUITests/CheckoutTests' },
+  { t: 'out', text: '✓ testCartLoads (4.8 s)\n✗ testPlaceOrder (30.0 s): Failed to find "Order confirmed"' },
+  { t: 'say', text: 'Found it: when payments fails, checkout spins forever because there’s no error state. Want me to add one with a "Try again" button and rerun the tests?' },
+];
+
+const blocks = variant === 'short' ? short : full;
+
 const argText = (args?: string) => (args ? `(${args})` : '');
 
 // Colour test results and injected failures in output lines.
@@ -41,7 +58,7 @@ const outLine = (line: string) => {
 };
 ---
 <figure class="term-figure">
-  <div class="term" data-agent-terminal>
+  <div class:list={['term', { short: variant === 'short' }]} data-agent-terminal>
     <div class="term-bar" aria-hidden="true">
       <span class="term-lights"><i></i><i></i><i></i></span>
       <span class="term-title">~/Projects/Pantry — claude</span>
@@ -144,6 +161,7 @@ const outLine = (line: string) => {
   .term-title { flex: 1; text-align: center; font-family: var(--font); }
   .term-replay { font: inherit; color: #d4d4d4; background: rgba(255,255,255,0.08); border: 0; border-radius: 6px; padding: 3px 10px; cursor: pointer; }
   .term-replay:hover { background: rgba(255,255,255,0.14); }
+  .term.short .term-body { height: 380px; }
   .term-body { position: relative; height: 520px; overflow-y: auto; padding: 18px 20px 24px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
   .tb { margin-bottom: 12px; }
   .term.js .tb { visibility: hidden; }

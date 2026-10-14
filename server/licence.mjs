@@ -186,7 +186,7 @@ async function stripe(method, pathname, params) {
 }
 
 // The launch coupon applies itself until it stops being valid (its redeem_by date). After that,
-// checkout accepts promotion codes instead, such as the ones support sends to trial users.
+// checkout accepts promotion codes instead.
 let couponCache = { at: 0, valid: false };
 async function launchCouponValid() {
   if (!env.STRIPE_LAUNCH_COUPON) return false;

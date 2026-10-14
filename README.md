@@ -17,6 +17,7 @@ The build has three steps after `astro build`:
 
 - Open decisions (support email, download URL, price, Paddle checkout) are in `src/config.ts`. `paddle.enabled` turns on the checkout at `/buy` (until then it only opens at `/buy?sandbox=1`); setting `downloadUrl` enables every download button.
 - `server/licence.mjs` is the licence service (systemd `lagsmith-licence`, Apache forwards `/api/` to 127.0.0.1:8787). It verifies Paddle webhooks, signs licence keys with `/etc/lagsmith/license-signing-key`, stores orders in `/var/lib/lagsmith/orders.json` and emails keys through Postmark. Secrets live in `/etc/lagsmith/*.env`, never in git. Restart it after changing those: `systemctl restart lagsmith-licence`.
+- Analytics: Umami (`Base.astro`), with URL fragments never sent and query strings dropped on noindex pages, because `/thanks#key=` holds a licence key. Events: `Download`, `Buy click`, `Checkout opened`, `Payment started`, `Checkout closed`, `Purchase` (with revenue), `Copy command`, `Activate click`, `Copy licence key`, `Lost key request`.
 - Clean URLs, www → apex and caching rules are in `public/.htaccess`.
 - `/thanks#key=LAGSMITH-...` shows the licence key and the `lagsmith://activate?key=` button. The key goes in the URL fragment so it never reaches server logs.
 - `brand/lagsmith-icon-1024.webp` is the source app icon; `public/icon-*.png`, `favicon.*`, `apple-touch-icon.png` and `og.png` are generated from it.

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /thanks
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
-Sitemap: https://lagsmith.com/sitemap-index.xml
+Sitemap: https://lagsmith.com/sitemap.xml

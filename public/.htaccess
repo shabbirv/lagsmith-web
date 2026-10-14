@@ -8,8 +8,10 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\.lagsmith\.com$ [NC]
 RewriteRule ^ https://lagsmith.com%{REQUEST_URI} [R=301,L]
 
-# The usual sitemap address -> the one Astro generates
-RewriteRule ^sitemap\.xml$ /sitemap-index.xml [R=301,L]
+# One sitemap at the usual address: serve Astro's page list at /sitemap.xml, and send the
+# index Astro also writes there (with 28 pages it only ever lists that one file).
+RewriteRule ^sitemap-index\.xml$ /sitemap.xml [R=301,L]
+RewriteRule ^sitemap\.xml$ /sitemap-0.xml [L]
 
 # /page.html -> /page, /page/ -> /page
 RewriteCond %{THE_REQUEST} \s/+([^?\s]+?)\.html[\s?]

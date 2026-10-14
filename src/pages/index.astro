@@ -6,10 +6,9 @@ import Cta from '../components/Cta.astro';
 import AppMock from '../components/AppMock.astro';
 import AgentTerminal from '../components/AgentTerminal.astro';
 import DownloadButton from '../components/DownloadButton.astro';
-import { SITE, currentPrice } from '../config';
+import { SITE } from '../config';
 import PriceTag from '../components/PriceTag.astro';
 
-const launch = currentPrice();
 import { appSchema, faqSchema, siteSchemas } from '../lib';
 
 const faq = [
@@ -55,13 +54,7 @@ const icons: Record<string, string> = {
           <DownloadButton />
           <a class="btn btn-secondary" href="/network-link-conditioner-alternative">Why not Network Link Conditioner?</a>
         </div>
-        {launch.regularLabel && (
-          <a class="launch-line" href="/pricing">
-            <span class="launch-price"><s>{launch.regularLabel}</s> {launch.label}</span>
-            <span>Lagsmith Pro launch price, until {launch.launchEndsLabel}</span>
-          </a>
-        )}
-        <p class="hero-note">Free, with a 14-day Pro trial. No account. {SITE.minMacOS}.</p>
+        <p class="hero-note"><strong>Free download.</strong> 14-day Pro trial, no account. {SITE.minMacOS}.</p>
       </div>
       <div class="mock-wide"><AppMock /></div>
     </div>
@@ -141,11 +134,8 @@ const icons: Record<string, string> = {
 </Base>
 
 <style>
-  .launch-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-top: 22px; color: var(--text); text-decoration: none; }
-  .launch-line:hover span:last-child { text-decoration: underline; }
-  .launch-price { font-size: 1.6rem; font-weight: 800; color: var(--accent); letter-spacing: -0.01em; }
-  .launch-price s { font-size: 1.1rem; font-weight: 500; color: var(--muted); margin-right: 4px; }
-  .hero-note { font-size: 0.9rem; color: var(--muted); margin-top: 6px; }
+  .hero-note { font-size: 0.9rem; color: var(--muted); }
+  .hero-note strong { color: var(--text); }
   .feature { display: block; color: inherit; text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
   .feature:hover { border-color: var(--accent); transform: translateY(-2px); }
   .feature h3 { margin: 12px 0 6px; }

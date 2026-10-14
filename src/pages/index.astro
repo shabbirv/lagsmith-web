@@ -22,14 +22,23 @@ const faq = [
   { q: 'Does Lagsmith collect any data?', a: 'No. Everything runs locally, there is no account, and the app has no analytics.' },
 ];
 
+// Short on purpose: each card links to the page with the detail.
 const features = [
-  { title: 'Throttle one app', text: 'Pick a running Mac app or an app in a booted iOS Simulator. Use Edge, 3G, DSL, LTE, WiFi or Very Bad Network, or set your own bandwidth, latency, jitter and packet loss. Every other app stays at full speed.', href: '/throttle-ios-simulator' },
-  { title: 'Break it on purpose', text: 'Airplane Mode for one app, refused connections, time-outs, dropped connections and outages that come and go. In the simulator, NWPathMonitor and SCNetworkReachability report no network, like a real device.', href: '/simulate-airplane-mode-ios-simulator' },
-  { title: 'Fail or mock one endpoint', text: 'Make a single API endpoint go offline, time out, return an HTTP status or respond slowly, or mock it with a made-up response starting from the real one. The rest of the app keeps working.', href: '/mock-api-ios-simulator' },
-  { title: 'See every request', text: 'Method, URL, status, timing, headers, bodies, a JSON tree and image previews for simulator apps. Search with filters like status:4xx or -host:cdn, and export as HAR.', href: '/docs/monitoring' },
-  { title: 'Automate it', text: 'Set the network from an XCTest UI test before launching the app, or use the ivar command line tool, lagsmith:// links or the local HTTP API.', href: '/docs/automation' },
-  { title: 'Let your AI agent drive', text: 'The built-in MCP server lets Claude Code, Cursor, Codex and others slow down the app under test, read its requests and mock endpoints, without slowing down the agent itself.', href: '/ai-agents-network-testing' },
+  { icon: 'gauge', title: 'Throttle one app', text: '3G, Edge, LTE or your own bandwidth, latency and packet loss. Everything else stays fast.', href: '/throttle-ios-simulator' },
+  { icon: 'plane', title: 'Break it on purpose', text: 'Airplane Mode, time-outs and dropped connections for one app.', href: '/simulate-airplane-mode-ios-simulator' },
+  { icon: 'target', title: 'Fail or mock one endpoint', text: 'Take one API offline or fake its response. The rest keeps working.', href: '/mock-api-ios-simulator' },
+  { icon: 'list', title: 'See every request', text: 'URLs, headers, bodies and timing for simulator apps. Export as HAR.', href: '/docs/monitoring' },
+  { icon: 'play', title: 'Automate it', text: 'Set the network from UI tests, the command line or a URL.', href: '/docs/automation' },
+  { icon: 'spark', title: 'Let your AI agent drive', text: 'A built-in MCP server for Claude Code, Cursor, Codex and more.', href: '/ai-agents-network-testing' },
 ];
+const icons: Record<string, string> = {
+  gauge: '<path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-5"/>',
+  plane: '<path d="M10.5 3.5 12 3l1.5.5v6l7 4v2l-7-2v4l2 1.5V20l-3.5-1L8.5 20v-1l2-1.5v-4l-7 2v-2l7-4z"/>',
+  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+  list: '<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".6"/><circle cx="4" cy="12" r=".6"/><circle cx="4" cy="18" r=".6"/>',
+  play: '<path d="M7 4.5v15l12-7.5z"/>',
+  spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+};
 ---
 <Base
   title="Lagsmith: slow down one app, not your whole Mac"
@@ -44,7 +53,7 @@ const features = [
         )}
         <p class="eyebrow">Network testing for iOS and macOS developers</p>
         <h1>Slow down one app, not your whole Mac</h1>
-        <p class="lead">Lagsmith slows down and breaks the network for one app at a time, including apps in the iOS Simulator. Your browser, Slack, Xcode and your AI agent stay at full speed.</p>
+        <p class="lead">Throttle or break the network for one app, including apps in the iOS Simulator. Everything else on your Mac stays at full speed.</p>
         <div class="actions">
           <DownloadButton />
           <a class="btn btn-secondary" href="/network-link-conditioner-alternative">Why not Network Link Conditioner?</a>
@@ -60,11 +69,11 @@ const features = [
       <h2 style="margin-top: 0">Everything you need to test bad networks</h2>
       <div class="grid">
         {features.map((f) => (
-          <div class="card">
+          <a class="card feature" href={f.href}>
+            <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={icons[f.icon]} />
             <h3>{f.title}</h3>
             <p>{f.text}</p>
-            <p><a href={f.href}>Learn more</a></p>
-          </div>
+          </a>
         ))}
       </div>
     </div>
@@ -74,9 +83,8 @@ const features = [
     <div class="wrap">
       <p class="eyebrow">Compared with Apple’s Network Link Conditioner</p>
       <h2 style="margin-top: 0">Network Link Conditioner, per app</h2>
-      <p class="lead">Network Link Conditioner is a good free tool from Apple. Lagsmith is what you reach for when you need it per app, need real failures, or need to see what’s happening.</p>
-      <NlcTable />
-      <p><a href="/network-link-conditioner-alternative">Read the full comparison</a> · <a href="/network-link-conditioner">How to install and use Network Link Conditioner</a></p>
+      <NlcTable short />
+      <p><a href="/network-link-conditioner-alternative">Read the full comparison</a></p>
     </div>
   </section>
 
@@ -85,8 +93,8 @@ const features = [
       <div>
         <p class="eyebrow">For AI coding agents</p>
         <h2 style="margin-top: 0">Run your end-to-end tests on 3G without slowing down your agent</h2>
-        <p>Throttle the whole Mac and your AI agent slows down with it. Lagsmith’s built-in MCP server lets Claude Code, Cursor, Codex, Claude Desktop and Windsurf slow down one app, fail an endpoint, relaunch it with monitoring, run your tests and read the failed requests, while the agent itself keeps its full connection.</p>
-        <p><a href="/ai-agents-network-testing">Network testing with AI agents</a> · <a href="/docs/mcp">Set up the MCP server</a></p>
+        <p>Throttle the whole Mac and your agent slows down too. With Lagsmith’s MCP server, it slows down only the app under test, runs your tests and reads the failed requests.</p>
+        <p><a href="/docs/mcp">Set up the MCP server</a></p>
       </div>
       <AgentTerminal variant="short" />
     </div>
@@ -116,7 +124,7 @@ const features = [
           </ul>
         </div>
       </div>
-      <p>Every install starts with a 14-day Pro trial. <a href="/pricing">See pricing</a></p>
+      <p><a href="/pricing">See pricing</a></p>
     </div>
   </section>
 
@@ -128,3 +136,11 @@ const features = [
 
   <Cta />
 </Base>
+
+<style>
+  .feature { display: block; color: inherit; text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
+  .feature:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .feature h3 { margin: 12px 0 6px; }
+  .feature p { color: var(--muted); margin: 0; }
+  .feature-icon { width: 36px; height: 36px; padding: 7px; border-radius: 10px; background: var(--accent-bg); stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+</style>

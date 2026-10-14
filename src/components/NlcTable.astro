@@ -1,5 +1,7 @@
 ---
-const rows = [
+interface Props { short?: boolean }
+const { short = false } = Astro.props;
+const full = [
   ['What it slows', 'The whole Mac: your browser, Slack, Xcode downloads, your AI agent, everything', 'Only the apps you choose'],
   ['iOS Simulator', 'Throttles the whole Mac, so every simulator app and everything else too', 'Per simulator app, even per simulator device'],
   ['How you get it', 'Separate "Additional Tools for Xcode" download from Apple’s developer site, installed as a System Settings pane', 'A normal Mac app with a menu bar icon'],
@@ -8,12 +10,27 @@ const rows = [
   ['Seeing requests', 'No', 'Every request of a simulator app: URL, headers, bodies, timing, JSON tree, image previews'],
   ['Automation', 'No', 'UI test helper, command line, URL scheme, local HTTP API, MCP server for AI agents'],
 ];
+// For the home page: a quick yes/no read. The full table is on /network-link-conditioner-alternative.
+const brief = [
+  ['What it slows', 'The whole Mac', 'Only the apps you pick'],
+  ['iOS Simulator', 'Every app at once', 'One app, even on one device'],
+  ['Failures', 'Packet loss only', 'Airplane Mode, time-outs, dropped and refused connections'],
+  ['Fail or mock one endpoint', '✕', '✓'],
+  ['See requests', '✕', '✓'],
+  ['UI tests and AI agents', '✕', '✓'],
+];
+const rows = short ? brief : full;
 ---
 <div class="table-wrap">
   <table class="table-compare">
     <thead><tr><th></th><th>Apple’s Network Link Conditioner</th><th>Lagsmith</th></tr></thead>
     <tbody>
-      {rows.map(([k, a, b]) => <tr><td>{k}</td><td>{a}</td><td>{b}</td></tr>)}
+      {rows.map(([k, a, b]) => <tr><td>{k}</td><td class={a === '✕' ? 'no' : undefined}>{a}</td><td class={b === '✓' ? 'yes' : undefined}>{b}</td></tr>)}
     </tbody>
   </table>
 </div>
+
+<style>
+  td.no { color: var(--muted); }
+  td.yes { font-weight: 700; }
+</style>

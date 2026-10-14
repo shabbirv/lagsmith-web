@@ -48,9 +48,6 @@ const icons: Record<string, string> = {
   <section class="hero">
     <div class="wrap">
       <div>
-        {launch.regularLabel && (
-          <p class="launch-banner"><a href="/pricing"><strong>Launch price:</strong> Lagsmith Pro <s>{launch.regularLabel}</s> {launch.label} until {launch.launchEndsLabel}.</a></p>
-        )}
         <p class="eyebrow">Network testing for iOS and macOS developers</p>
         <h1>Slow down one app, not your whole Mac</h1>
         <p class="lead">Throttle or break the network for one app, including apps in the iOS Simulator. Everything else, including your AI agent, stays at full speed.</p>
@@ -58,7 +55,10 @@ const icons: Record<string, string> = {
           <DownloadButton />
           <a class="btn btn-secondary" href="/network-link-conditioner-alternative">Why not Network Link Conditioner?</a>
         </div>
-        <p class="muted" style="font-size: 0.9rem">Free, with a 14-day Pro trial. No account. {SITE.minMacOS}, Apple silicon and Intel.</p>
+        <p class="hero-note">
+          Free, with a 14-day Pro trial. No account. {SITE.minMacOS}.
+          {launch.regularLabel && <><br /><a href="/pricing">Pro is <s>{launch.regularLabel}</s> <strong>{launch.label}</strong> until {launch.launchEndsLabel}</a></>}
+        </p>
       </div>
       <div class="mock-wide"><AppMock /></div>
     </div>
@@ -138,6 +138,10 @@ const icons: Record<string, string> = {
 </Base>
 
 <style>
+  .hero-note { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+  .hero-note a { color: inherit; text-decoration: none; }
+  .hero-note a:hover { color: var(--text); }
+  .hero-note strong { color: var(--text); }
   .feature { display: block; color: inherit; text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
   .feature:hover { border-color: var(--accent); transform: translateY(-2px); }
   .feature h3 { margin: 12px 0 6px; }

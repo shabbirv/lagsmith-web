@@ -41,8 +41,11 @@ const checkout = {
   <script is:inline src="https://cdn.paddle.com/paddle/v2/paddle.js" defer></script>
   <script is:inline define:vars={{ checkout }}>
     window.addEventListener('load', () => {
-      const testing = new URLSearchParams(location.search).has('sandbox');
-      if (!(checkout.enabled || testing) || !window.Paddle) return;
+      const params = new URLSearchParams(location.search);
+      // ?_ptxn=… is a payment link from Paddle (emails, dashboard); Paddle.js opens that checkout itself.
+      const paymentLink = params.has('_ptxn');
+      const testing = params.has('sandbox');
+      if (!(checkout.enabled || testing || paymentLink) || !window.Paddle) return;
 
       document.getElementById('checkout-off').hidden = true;
       document.getElementById('checkout-ready').hidden = false;
@@ -59,8 +62,9 @@ const checkout = {
 
       const open = () =>
         Paddle.Checkout.open({
-          items: [{ priceId: checkout.priceId, quantity: 1 }],
-          ...(checkout.discountId ? { discountId: checkout.discountId } : {}),
+          ...(paymentLink
+            ? { transactionId: params.get('_ptxn') }
+            : { items: [{ priceId: checkout.priceId, quantity: 1 }], ...(checkout.discountId ? { discountId: checkout.discountId } : {}) }),
           settings: {
             displayMode: 'overlay',
             theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
@@ -69,7 +73,7 @@ const checkout = {
         });
 
       document.getElementById('open-checkout').addEventListener('click', open);
-      open();
+      if (!paymentLink) open();
     });
   </script>
 </Base>

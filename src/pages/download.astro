@@ -15,7 +15,7 @@ import { appSchema } from '../lib';
       <p class="lead">Free, with a 14-day Pro trial. No account, no card.</p>
       <div class="actions">
         {SITE.downloadUrl
-          ? <a class="btn btn-primary" href={SITE.downloadUrl}>Download for Mac</a>
+          ? <a class="btn btn-primary" href={SITE.downloadUrl} data-umami-event="Download" data-umami-event-page="/download">Download for Mac</a>
           : <span class="btn btn-primary" aria-disabled="true">Download coming soon</span>}
       </div>
       <p class="muted">{SITE.minMacOS}. Apple silicon and Intel.</p>

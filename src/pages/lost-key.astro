@@ -29,6 +29,7 @@ import { SITE } from '../config';
       const email = (form.elements.namedItem('email') as HTMLInputElement).value;
       const button = form.querySelector('button')!;
       button.disabled = true;
+      (window as any).umami?.track('Lost key request');
       try {
         const res = await fetch('/api/lost-key', {
           method: 'POST',

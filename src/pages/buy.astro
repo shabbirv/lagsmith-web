@@ -51,11 +51,22 @@ const checkout = {
       document.getElementById('checkout-ready').hidden = false;
 
       if (checkout.environment === 'sandbox') Paddle.Environment.set('sandbox');
+      let completed = false;
       Paddle.Initialize({
         token: checkout.token,
         eventCallback: (event) => {
-          if (event.name === 'checkout.completed' && event.data?.transaction_id) {
-            location.href = `/thanks?txn=${encodeURIComponent(event.data.transaction_id)}`;
+          const track = (name, data) => window.umami?.track(name, data);
+          if (event.name === 'checkout.loaded') track('Checkout opened');
+          if (event.name === 'checkout.payment.initiated') track('Payment started');
+          if (event.name === 'checkout.closed' && !completed) track('Checkout closed');
+          if (event.name === 'checkout.completed') {
+            completed = true;
+            const sent = track('Purchase', { revenue: event.data?.totals?.total, currency: event.data?.currency_code, country: event.data?.customer?.address?.country_code });
+            const txn = event.data?.transaction_id;
+            // Give the analytics request up to a second before leaving the page.
+            if (txn) Promise.race([sent, new Promise((r) => setTimeout(r, 1000))]).finally(() => {
+              location.href = `/thanks?txn=${encodeURIComponent(txn)}`;
+            });
           }
         },
       });

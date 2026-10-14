@@ -23,7 +23,7 @@ import { SITE } from '../config';
         <div class="actions"><DownloadButton secondary /></div>
 
         <h2>2. Activate</h2>
-        <div class="actions"><a class="btn btn-primary" id="activate" href="#">Activate Lagsmith</a></div>
+        <div class="actions"><a class="btn btn-primary" id="activate" href="#" data-umami-event="Activate click">Activate Lagsmith</a></div>
         <p class="muted">This opens Lagsmith with your key filled in. Click Activate in Lagsmith to unlock Pro.</p>
 
         <h3>Or activate by hand</h3>
@@ -63,6 +63,7 @@ import { SITE } from '../config';
       const copy = $('copy');
       copy.addEventListener('click', async () => {
         await navigator.clipboard.writeText(key);
+        (window as any).umami?.track('Copy licence key');
         copy.textContent = 'Copied';
         setTimeout(() => (copy.textContent = 'Copy'), 2000);
       });

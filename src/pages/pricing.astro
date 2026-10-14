@@ -58,7 +58,7 @@ const faq = [
             <li>Unlimited request history, search filters, HAR export</li>
             <li>Mini monitor</li>
           </ul>
-          {SITE.paddle.enabled ? <a class="btn btn-primary" href="/buy">Buy Lagsmith Pro</a> : <DownloadButton label="Start the free trial" />}
+          {SITE.paddle.enabled ? <a class="btn btn-primary" href="/buy" data-umami-event="Buy click" data-umami-event-page="/pricing">Buy Lagsmith Pro</a> : <DownloadButton label="Start the free trial" />}
         </div>
       </div>
       {launch.regularLabel && (

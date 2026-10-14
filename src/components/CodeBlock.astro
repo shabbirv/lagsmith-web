@@ -12,6 +12,7 @@ const { code, label } = Astro.props;
   document.querySelectorAll<HTMLButtonElement>('.codeblock-copy').forEach((btn) => {
     btn.addEventListener('click', async () => {
       await navigator.clipboard.writeText(btn.dataset.code ?? '');
+      (window as any).umami?.track('Copy command', { page: location.pathname, command: (btn.dataset.code ?? '').slice(0, 80) });
       btn.textContent = 'Copied';
       setTimeout(() => (btn.textContent = 'Copy'), 2000);
     });

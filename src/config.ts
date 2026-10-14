@@ -9,8 +9,8 @@ export const SITE = {
   // TBD: support address. Make sure mail for this address is set up before launch.
   supportEmail: 'support@lagsmith.com',
 
-  // TBD: hosted download (signed and notarized .dmg). null shows "coming soon".
-  downloadUrl: null as string | null,
+  // Signed and notarized .dmg. null shows "coming soon".
+  downloadUrl: 'https://downloads.lagsmith.com/Lagsmith.dmg' as string | null,
 
   // Paddle checkout on /buy. While `enabled` is false, visitors see "coming soon" and the
   // checkout only opens at /buy?sandbox=1 for testing. The client token is public by design.

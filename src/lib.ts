@@ -21,6 +21,7 @@ export const appSchema = () => ({
   description: SITE.description,
   url: SITE.url,
   image: `${SITE.url}/icon-512.png`,
+  ...(SITE.downloadUrl ? { downloadUrl: SITE.downloadUrl } : {}),
   publisher: { '@id': `${SITE.url}/#organization` },
   offers: [
     { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: SITE.price.currency, description: 'Free version with a 14-day Pro trial' },

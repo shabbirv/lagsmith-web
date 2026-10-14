@@ -75,6 +75,9 @@ const isCurrent = (href: string) => path === href || (href !== '/' && path.start
     <link rel="alternate" type="text/markdown" href={`${path === '/' ? '/index' : path}.md`} title="Markdown version" />
 
     {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+    {/* Umami analytics: cookieless. Never send the URL fragment (/thanks#key=… holds a licence key),
+        and skip query strings on private pages like /thanks?txn=…. */}
+    <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="c73e2edb-8fe7-4055-a894-fa1dba764241" data-exclude-hash="true" data-exclude-search={noindex ? 'true' : undefined}></script>
     <slot name="head" />
   </head>
   <body>

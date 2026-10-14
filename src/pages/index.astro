@@ -5,6 +5,7 @@ import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
 import AppMock from '../components/AppMock.astro';
 import AgentTerminal from '../components/AgentTerminal.astro';
+import MiniMonitor from '../components/MiniMonitor.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import { SITE } from '../config';
 import PriceTag from '../components/PriceTag.astro';
@@ -88,6 +89,18 @@ const icons: Record<string, string> = {
   </section>
 
   <section class="section section-soft">
+    <div class="wrap split split-reverse">
+      <MiniMonitor />
+      <div>
+        <p class="eyebrow">Mini monitor</p>
+        <h2 style="margin-top: 0">Watch the network while you test</h2>
+        <p>A small floating window beside the simulator shows the app’s network and every request as it happens. Click it to open the full inspector.</p>
+        <p><a href="/docs/monitoring">Request monitoring</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="wrap">
       <p class="eyebrow">Compared with Apple’s Network Link Conditioner</p>
       <h2 style="margin-top: 0">Network Link Conditioner, per app</h2>
@@ -96,7 +109,7 @@ const icons: Record<string, string> = {
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section-soft">
     <div class="wrap">
       <h2 style="margin-top: 0">Free to start, Pro when you need it</h2>
       <div class="plans">

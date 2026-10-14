@@ -1,0 +1,164 @@
+---
+// A drawn copy of Lagsmith's mini monitor floating beside a simulator, used until real
+// screenshots are added. New requests slide in at the top; static for reduced motion.
+import MockAppIcon from './MockAppIcon.astro';
+
+interface Request { method: string; status: string; path: string; time: string; failed?: boolean }
+// Pantry on Very Bad Network. The first rows are shown before any animation runs.
+const requests: Request[] = [
+  { method: 'POST', status: '200 OK', path: '/v1/cart', time: '1.4 s' },
+  { method: 'GET', status: '200 OK', path: '/v1/recipes?page=2', time: '2.8 s' },
+  { method: 'POST', status: 'Timed out', path: '/v1/payments', time: '30 s', failed: true },
+  { method: 'GET', status: '200 OK', path: '/v1/images/7f3a…c91.jpg', time: '3.1 s' },
+  { method: 'GET', status: '304', path: '/v1/user/profile', time: '640 ms' },
+  { method: 'POST', status: '202', path: '/v1/events', time: '1.9 s' },
+  { method: 'GET', status: '200 OK', path: '/v1/pantry/items', time: '912 ms' },
+];
+// Requests that arrive while the page is open, in order, then repeat.
+const incoming: Request[] = [
+  { method: 'GET', status: '200 OK', path: '/v1/recipes/412', time: '2.2 s' },
+  { method: 'POST', status: '200 OK', path: '/v1/cart/items', time: '1.7 s' },
+  { method: 'GET', status: '200 OK', path: '/v1/images/b20e…4d7.jpg', time: '4.6 s' },
+  { method: 'GET', status: 'Timed out', path: '/v1/recommendations', time: '30 s', failed: true },
+  { method: 'POST', status: '202', path: '/v1/events', time: '1.3 s' },
+  { method: 'GET', status: '200 OK', path: '/v1/pantry/items', time: '1.1 s' },
+];
+const total = 46;
+const failedCount = requests.filter((r) => r.failed).length;
+---
+<figure class="mm-scene" aria-label="Illustration: Lagsmith's mini monitor beside an iOS Simulator running Pantry on Very Bad Network">
+  <div class="mm-phone" aria-hidden="true">
+    <div class="mm-island"></div>
+    <div class="mm-screen">
+      <div class="mm-bar"><span>9:41</span><span class="mm-dots">····</span></div>
+      <div class="mm-title">Recipes</div>
+      <div class="mm-grid">
+        {Array.from({ length: 6 }, (_, i) => <div class={`mm-tile${i < 2 ? ' mm-loaded' : ''}`}></div>)}
+      </div>
+      <div class="mm-spinner"></div>
+    </div>
+  </div>
+
+  <div class="mm-panel" data-mini-monitor data-incoming={JSON.stringify(incoming)} data-total={total} data-failed={failedCount}>
+    <div class="mm-lights" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="mm-head">
+      <MockAppIcon icon="pantry" size={34} />
+      <div>
+        <b>Pantry</b>
+        <small>iPhone 17 Pro · iOS 26</small>
+      </div>
+    </div>
+    <div class="mm-preset">Very Bad Network <span aria-hidden="true">⌃⌄</span></div>
+    <ol class="mm-list">
+      {requests.map((r) => (
+        <li>
+          <span class="mm-row"><b>{r.method}</b><span class={r.failed ? 'mm-bad' : 'mm-ok'}>{r.status}</span><span class="mm-time">{r.time}</span></span>
+          <span class="mm-path">{r.path}</span>
+        </li>
+      ))}
+    </ol>
+    <div class="mm-foot"><span data-count>{total}</span> requests · <span data-failed>{failedCount}</span> failed · click to inspect</div>
+  </div>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-mini-monitor]').forEach((panel) => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const list = panel.querySelector('.mm-list')!;
+    const countEl = panel.querySelector('[data-count]')!;
+    const failedEl = panel.querySelector('[data-failed]')!;
+    const incoming = JSON.parse(panel.dataset.incoming ?? '[]');
+    let total = Number(panel.dataset.total);
+    let failed = Number(panel.dataset.failed);
+    let next = 0;
+    let timer: number | undefined;
+
+    const add = () => {
+      const r = incoming[next++ % incoming.length];
+      // Copy an existing row so it keeps the component's scoped styles.
+      const li = list.firstElementChild!.cloneNode(true) as HTMLElement;
+      li.classList.add('mm-new');
+      const [method, status, time] = li.querySelector('.mm-row')!.children as unknown as HTMLElement[];
+      method.textContent = r.method;
+      status.className = status.className.replace(/mm-(ok|bad)/, r.failed ? 'mm-bad' : 'mm-ok');
+      status.textContent = r.status;
+      time.textContent = r.time;
+      li.querySelector('.mm-path')!.textContent = r.path;
+      list.prepend(li);
+      list.lastElementChild?.remove();
+      countEl.textContent = String(++total);
+      if (r.failed) failedEl.textContent = String(++failed);
+    };
+
+    // Only run while it's on screen.
+    new IntersectionObserver(([entry]) => {
+      clearInterval(timer);
+      if (entry.isIntersecting) timer = window.setInterval(add, 2200);
+    }).observe(panel);
+  });
+</script>
+
+<style>
+  .mm-scene {
+    position: relative; margin: 0; display: flex; align-items: center; justify-content: center; gap: 28px;
+    padding: 40px 28px; border-radius: 18px; overflow: hidden;
+    background: radial-gradient(120% 90% at 20% 10%, #c2562a 0%, #9b2f1f 45%, #4a1a1c 100%);
+  }
+  .mm-scene::before {
+    /* faint stars, like the wallpaper behind the real window */
+    content: ''; position: absolute; inset: 0; opacity: 0.35; pointer-events: none;
+    background-image: radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 68% 12%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 82% 44%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 34% 72%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 90% 82%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 52% 30%, #fff 50%, transparent 51%);
+  }
+
+  /* Simulator */
+  .mm-phone { position: relative; flex: none; width: 200px; height: 410px; border-radius: 40px; background: #1d1b1a; padding: 9px; box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 24px 60px -20px rgba(0,0,0,0.6); }
+  .mm-island { position: absolute; top: 18px; left: 50%; width: 64px; height: 18px; margin-left: -32px; border-radius: 10px; background: #000; z-index: 1; }
+  .mm-screen { position: relative; height: 100%; border-radius: 32px; background: #f6f4f1; overflow: hidden; padding: 14px 12px; color: #1b1b1b; }
+  .mm-bar { display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; padding: 0 8px; }
+  .mm-dots { letter-spacing: 1px; color: #9a9a9a; }
+  .mm-title { font-size: 17px; font-weight: 700; margin: 26px 2px 10px; }
+  .mm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mm-tile { height: 74px; border-radius: 10px; background: linear-gradient(90deg, #e7e3de 25%, #f1eee9 50%, #e7e3de 75%); background-size: 200% 100%; animation: mm-shimmer 1.6s linear infinite; }
+  .mm-tile.mm-loaded { animation: none; background: linear-gradient(135deg, #8bd4a0, #3c9a5f); }
+  .mm-tile.mm-loaded + .mm-tile.mm-loaded { background: linear-gradient(135deg, #f3c16b, #d9822b); }
+  .mm-spinner { position: absolute; left: 50%; bottom: 36px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; border: 2.5px solid #d6d1cb; border-top-color: #6b6560; animation: mm-spin 0.9s linear infinite; }
+
+  /* Mini monitor: a translucent panel tinted by what's behind it */
+  .mm-panel {
+    position: relative; flex: none; width: 330px; align-self: flex-end; padding: 12px 14px 12px; border-radius: 16px; text-align: left;
+    color: #fff; font-size: 13px; line-height: 1.3;
+    background: rgba(140, 30, 26, 0.55); backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.14) inset, 0 24px 60px -20px rgba(0,0,0,0.55);
+  }
+  .mm-lights { display: flex; gap: 7px; margin-bottom: 12px; }
+  .mm-lights i { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.28); }
+  .mm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .mm-head :global(svg) { border-radius: 9px; }
+  .mm-head b { display: block; font-size: 16px; }
+  .mm-head small { color: rgba(255,255,255,0.72); font-size: 12px; }
+  .mm-preset { display: inline-flex; gap: 16px; align-items: center; padding: 4px 10px; margin-bottom: 8px; border-radius: 7px; background: rgba(255,255,255,0.14); font-size: 13px; }
+  .mm-preset span { font-size: 9px; letter-spacing: -1px; opacity: 0.8; }
+  .mm-list { list-style: none; margin: 0; padding: 0; height: 252px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+  .mm-list li { padding: 5px 0; }
+  .mm-new { animation: mm-in 0.45s ease-out; }
+  .mm-row { display: flex; gap: 10px; font-size: 12px; }
+  .mm-row b { font-weight: 600; color: rgba(255,255,255,0.68); min-width: 38px; }
+  .mm-ok { color: #4ade80; font-weight: 600; }
+  .mm-bad { color: #fda4af; font-weight: 600; }
+  .mm-time { margin-left: auto; color: rgba(255,255,255,0.72); font-variant-numeric: tabular-nums; }
+  .mm-path { display: block; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mm-foot { padding-top: 8px; color: rgba(255,255,255,0.72); font-size: 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+
+  @keyframes mm-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes mm-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  @keyframes mm-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .mm-tile, .mm-spinner { animation: none; } }
+
+  @media (max-width: 640px) {
+    .mm-scene { padding: 24px 14px; }
+    .mm-phone { display: none; }
+    .mm-panel { width: 100%; max-width: 340px; align-self: center; }
+  }
+</style>

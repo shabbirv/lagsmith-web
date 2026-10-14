@@ -173,3 +173,5 @@ ol.steps > li::before { content: counter(step); position: absolute; left: 0; top
 
 .split { display: grid; grid-template-columns: 1fr 1.45fr; gap: 48px; align-items: center; }
 @media (max-width: 960px) { .split { grid-template-columns: 1fr; gap: 28px; } }
+.split-reverse { grid-template-columns: 1.45fr 1fr; }
+@media (max-width: 960px) { .split-reverse { grid-template-columns: 1fr; } .split-reverse > :first-child { order: 2; } }

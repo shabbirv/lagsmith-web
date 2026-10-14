@@ -53,7 +53,7 @@ const icons: Record<string, string> = {
         )}
         <p class="eyebrow">Network testing for iOS and macOS developers</p>
         <h1>Slow down one app, not your whole Mac</h1>
-        <p class="lead">Throttle or break the network for one app, including apps in the iOS Simulator. Everything else on your Mac stays at full speed.</p>
+        <p class="lead">Throttle or break the network for one app, including apps in the iOS Simulator. Everything else, including your AI agent, stays at full speed.</p>
         <div class="actions">
           <DownloadButton />
           <a class="btn btn-secondary" href="/network-link-conditioner-alternative">Why not Network Link Conditioner?</a>
@@ -65,6 +65,18 @@ const icons: Record<string, string> = {
   </section>
 
   <section class="section section-soft">
+    <div class="wrap split">
+      <div>
+        <p class="eyebrow">For AI coding agents</p>
+        <h2 style="margin-top: 0">Run your end-to-end tests on 3G without slowing down your agent</h2>
+        <p>Throttle the whole Mac and your agent slows down too. With Lagsmith’s MCP server, it slows down only the app under test, runs your tests and reads the failed requests.</p>
+        <p><a href="/docs/mcp">Set up the MCP server</a></p>
+      </div>
+      <AgentTerminal variant="short" />
+    </div>
+  </section>
+
+  <section class="section">
     <div class="wrap">
       <h2 style="margin-top: 0">Everything you need to test bad networks</h2>
       <div class="grid">
@@ -79,24 +91,12 @@ const icons: Record<string, string> = {
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section-soft">
     <div class="wrap">
       <p class="eyebrow">Compared with Apple’s Network Link Conditioner</p>
       <h2 style="margin-top: 0">Network Link Conditioner, per app</h2>
       <NlcTable short />
       <p><a href="/network-link-conditioner-alternative">Read the full comparison</a></p>
-    </div>
-  </section>
-
-  <section class="section section-soft">
-    <div class="wrap split">
-      <div>
-        <p class="eyebrow">For AI coding agents</p>
-        <h2 style="margin-top: 0">Run your end-to-end tests on 3G without slowing down your agent</h2>
-        <p>Throttle the whole Mac and your agent slows down too. With Lagsmith’s MCP server, it slows down only the app under test, runs your tests and reads the failed requests.</p>
-        <p><a href="/docs/mcp">Set up the MCP server</a></p>
-      </div>
-      <AgentTerminal variant="short" />
     </div>
   </section>
 

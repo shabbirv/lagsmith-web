@@ -1,9 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE } from '../config';
+import { SITE, reseller } from '../config';
+const seller = reseller();
 
 const { legal } = SITE;
-const updated = 'October 13, 2026';
+const updated = 'October 14, 2026';
 ---
 <Base title="Privacy" description="Lagsmith runs locally, has no account and no analytics in the app. What we collect when you buy Pro or visit lagsmith.com." breadcrumbs={[{ name: 'Privacy', href: '/privacy' }]}>
   <section class="page-head">
@@ -23,8 +24,8 @@ const updated = 'October 13, 2026';
       <p>If you connect an AI agent or other tool to Lagsmith, what that tool does with the information it reads is governed by its own privacy policy.</p>
 
       <h2>Buying Lagsmith Pro</h2>
-      <p>Purchases are handled by Paddle.com, our reseller and Merchant of Record. Paddle collects your payment details, billing address and tax information under its own <a href="https://www.paddle.com/legal/privacy" rel="noopener">privacy policy</a>. We never see your full card details.</p>
-      <p>Paddle shares with us your name, email address, country, and order details (what you bought, when, and the amount). We use them to:</p>
+      <p>Purchases are handled by {seller.name}, our reseller and merchant of record. {seller.name} collects your payment details, billing address and tax information under its own <a href={seller.privacyUrl} rel="noopener">privacy policy</a>. We never see your full card details.</p>
+      <p>{seller.name} shares with us your name, email address, country, and order details (what you bought, when, and the amount). We use them to:</p>
       <ul>
         <li>create your licence key and email it to you,</li>
         <li>send your key again if you lose it,</li>

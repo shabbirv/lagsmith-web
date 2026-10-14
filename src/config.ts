@@ -12,6 +12,17 @@ export const SITE = {
   // Signed and notarized .dmg. null shows "coming soon".
   downloadUrl: 'https://downloads.lagsmith.com/Lagsmith.dmg' as string | null,
 
+  // Which payment provider /buy uses. Both are wired up in the licence service; the Terms,
+  // Privacy and Refunds pages name whichever one is chosen here.
+  checkout: 'stripe' as 'stripe' | 'paddle',
+
+  // Stripe Managed Payments (Stripe is the merchant of record). The licence service creates the
+  // Checkout Session, so nothing secret is here. While `enabled` is false, visitors see
+  // "coming soon" and checkout only opens at /buy?test=1.
+  stripe: {
+    enabled: false,
+  },
+
   // Paddle checkout on /buy. While `enabled` is false, visitors see "coming soon" and the
   // checkout only opens at /buy?sandbox=1 for testing. The client token is public by design.
   paddle: {
@@ -64,4 +75,30 @@ export function currentPrice(today = new Date()) {
       : null,
     launchReason: launchActive ? p.launchReason : null,
   };
+}
+
+/** Whether visitors can buy Pro on /buy right now (with the chosen provider). */
+export const checkoutEnabled = () => (SITE.checkout === 'stripe' ? SITE.stripe.enabled : SITE.paddle.enabled);
+
+// The company that sells to the buyer on our behalf (merchant of record), for the legal pages.
+export function reseller() {
+  return SITE.checkout === 'stripe'
+    ? {
+        name: 'Stripe',
+        intro: 'Our orders are processed by Stripe through its Managed Payments service. Stripe, through Link, is the merchant of record for all our orders: your purchase is “Sold through Link”, and Link’s terms apply to the payment.',
+        handles: 'Stripe calculates and collects any sales tax or VAT, and handles payment questions and refund requests for your order.',
+        termsUrl: 'https://link.com/terms',
+        privacyUrl: 'https://link.com/privacy',
+        refundSite: { label: 'Link support', url: 'https://support.link.com/topics/sold-through-link' },
+        statement: 'LINK.COM* LAGSMITH',
+      }
+    : {
+        name: 'Paddle',
+        intro: 'Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders, and Paddle’s buyer terms apply to your purchase.',
+        handles: 'Paddle calculates and collects any sales tax or VAT, provides all customer service inquiries and handles returns.',
+        termsUrl: 'https://www.paddle.com/legal/checkout-buyer-terms',
+        privacyUrl: 'https://www.paddle.com/legal/privacy',
+        refundSite: { label: 'paddle.net', url: 'https://paddle.net' },
+        statement: 'PADDLE.NET* LAGSMITH',
+      };
 }

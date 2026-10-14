@@ -1,9 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE } from '../config';
+import { SITE, reseller } from '../config';
+const seller = reseller();
 
 const { legal } = SITE;
-const updated = 'October 13, 2026';
+const updated = 'October 14, 2026';
 ---
 <Base title="Refund policy" description={`Lagsmith Pro comes with a ${legal.refundDays}-day, no-questions-asked refund.`} breadcrumbs={[{ name: 'Refund policy', href: '/refunds' }]}>
   <section class="page-head">
@@ -16,13 +17,13 @@ const updated = 'October 13, 2026';
       <p>Either:</p>
       <ul>
         <li>email <a href={`mailto:${SITE.supportEmail}?subject=Refund%20request`}>{SITE.supportEmail}</a> from the address you bought with, or include your order number, or</li>
-        <li>request it from Paddle, our reseller, at <a href="https://paddle.net" rel="noopener">paddle.net</a>, using the email address you bought with.</li>
+        <li>request it from {seller.name}, our reseller, through <a href={seller.refundSite.url} rel="noopener">{seller.refundSite.label}</a>, using the email address you bought with.</li>
       </ul>
       <p>You don’t need to give a reason, though we’re always glad to hear what didn’t work for you.</p>
 
       <h2>What happens next</h2>
       <ul>
-        <li>Paddle, the Merchant of Record for our orders, refunds the full amount, including any tax, to your original payment method.</li>
+        <li>{seller.name}, the merchant of record for our orders, refunds the full amount, including any tax, to your original payment method.</li>
         <li>Refunds usually appear within 5 to 10 business days, depending on your bank.</li>
         <li>Your licence for that purchase ends, and Lagsmith goes back to the free version.</li>
       </ul>

@@ -1,6 +1,7 @@
 ---
-// Thank-you page after checkout. Two ways in:
-//   /thanks?txn=txn_…        from checkout: the licence is fetched from the licence service
+// Thank-you page after checkout. Ways in:
+//   /thanks?session=cs_…     from Stripe Checkout: the licence is fetched from the licence service
+//   /thanks?txn=txn_…        from Paddle checkout: likewise
 //   /thanks#key=LAGSMITH-…   a key in the URL fragment, which never reaches server logs
 import Base from '../layouts/Base.astro';
 import DownloadButton from '../components/DownloadButton.astro';
@@ -72,12 +73,15 @@ import { SITE } from '../config';
     async function fetchLicence(txn: string) {
       $('no-key').hidden = true;
       $('waiting').hidden = false;
-      // Paddle's notification can take a few seconds; keep asking for up to a minute.
+      // The payment provider's notification can take a few seconds; keep asking for up to a minute.
       for (let attempt = 0; attempt < 20; attempt++) {
         try {
           const res = await fetch(`/api/licence?txn=${encodeURIComponent(txn)}`);
           const body = await res.json();
-          if (body.status === 'ready') return show(body.licence, body.email);
+          if (body.status === 'ready') {
+            trackPurchase(txn, body);
+            return show(body.licence, body.email);
+          }
           if (body.status === 'refunded') {
             $('waiting').hidden = true;
             $('no-key').hidden = false;
@@ -92,8 +96,23 @@ import { SITE } from '../config';
       $('no-key').hidden = false;
     }
 
+    // Stripe purchases are counted here (Paddle's are counted on /buy), once per order.
+    function trackPurchase(txn: string, body: { amount?: number; currency?: string }) {
+      if (!txn.startsWith('cs_') || body.amount === undefined) return;
+      const seen = `lagsmith-purchase-${txn}`;
+      try {
+        if (localStorage.getItem(seen)) return;
+        localStorage.setItem(seen, '1');
+      } catch {}
+      const send = () => (window as any).umami?.track('Purchase', { revenue: body.amount, currency: body.currency });
+      // Umami loads with defer and may not be ready yet.
+      if ((window as any).umami) send();
+      else window.addEventListener('load', send);
+    }
+
     const key = new URLSearchParams(location.hash.slice(1)).get('key');
-    const txn = new URLSearchParams(location.search).get('txn');
+    const query = new URLSearchParams(location.search);
+    const txn = query.get('session') ?? query.get('txn');
     if (key?.startsWith('LAGSMITH-')) show(key);
     else if (txn) fetchLicence(txn);
   </script>

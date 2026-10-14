@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Faq from '../components/Faq.astro';
 import DownloadButton from '../components/DownloadButton.astro';
-import { SITE } from '../config';
+import { SITE, reseller, checkoutEnabled } from '../config';
 import PriceTag from '../components/PriceTag.astro';
 import { currentPrice } from '../config';
 
@@ -58,13 +58,13 @@ const faq = [
             <li>Unlimited request history, search filters, HAR export</li>
             <li>Mini monitor</li>
           </ul>
-          {SITE.paddle.enabled ? <a class="btn btn-primary" href="/buy" data-umami-event="Buy click" data-umami-event-page="/pricing">Buy Lagsmith Pro</a> : <DownloadButton label="Start the free trial" />}
+          {checkoutEnabled() ? <a class="btn btn-primary" href="/buy" data-umami-event="Buy click" data-umami-event-page="/pricing">Buy Lagsmith Pro</a> : <DownloadButton label="Start the free trial" />}
         </div>
       </div>
       {launch.regularLabel && (
         <div class="callout narrow" style="margin: 0 auto 1.5em"><p><strong>Started your trial during the launch?</strong> If you download Lagsmith by {launch.launchEndsLabel} and buy before your 14-day trial ends, you get the {launch.label} launch price, even after {launch.launchEndsLabel}. Just <a href={`mailto:${SITE.supportEmail}?subject=Launch%20price`}>email us</a> for a code.</p></div>
       )}
-      <p class="center muted">Prices in US dollars. VAT is included where it applies; sales tax is added at checkout in some places. Payments are handled by Paddle. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>.</p>
+      <p class="center muted">Prices in US dollars; checkout can show your local currency. Tax is calculated at checkout. Payments are handled by {reseller().name}. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>.</p>
     </div>
     <div class="wrap narrow"><Faq items={faq} /></div>
   </section>

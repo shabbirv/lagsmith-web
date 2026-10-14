@@ -1,9 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE } from '../config';
+import { SITE, reseller } from '../config';
+const seller = reseller();
 
 const { legal } = SITE;
-const updated = 'October 13, 2026';
+const updated = 'October 14, 2026';
 ---
 <Base title="Terms" description={`Terms of use and licence for Lagsmith, made by ${legal.name}.`} breadcrumbs={[{ name: 'Terms', href: '/terms' }]}>
   <section class="page-head">
@@ -30,8 +31,8 @@ const updated = 'October 13, 2026';
       <p>Lagsmith depends on macOS, Xcode and the iOS Simulator, which Apple changes regularly. We work to keep Lagsmith compatible, but we can’t promise that every version will work with every future version of Apple’s software.</p>
 
       <h2>4. Buying</h2>
-      <p>Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns. Paddle’s <a href="https://www.paddle.com/legal/checkout-buyer-terms" rel="noopener">buyer terms</a> apply to your purchase.</p>
-      <p>Prices are set in US dollars. Depending on where you live, VAT is included in the price or sales tax is added at checkout; Paddle calculates and collects it. If we change our prices, the change doesn’t affect licences you have already bought.</p>
+      <p>{seller.intro} See their <a href={seller.termsUrl} rel="noopener">terms</a>.</p>
+      <p>{seller.handles} Prices are set in US dollars and may be shown in your local currency at checkout. If we change our prices, the change doesn’t affect licences you have already bought. The charge appears on your statement as {seller.statement}.</p>
 
       <h2>5. Refunds</h2>
       <p>If Lagsmith Pro isn’t right for you, you can get a full refund within {legal.refundDays} days of purchase, for any reason. See our <a href="/refunds">refund policy</a>. When a purchase is refunded, its licence ends.</p>

@@ -1,12 +1,17 @@
 ---
 // The app's "Buy Lagsmith Pro" button opens this URL; it must always exist.
-// Opens Paddle's overlay checkout, applying the launch discount while it runs. After payment,
-// the buyer goes to /thanks?txn=… where the licence key is fetched from the licence service.
+// Stripe (SITE.checkout = 'stripe'): asks the licence service for a Checkout Session and sends the
+// buyer to Stripe's page; the service applies the launch coupon while it's valid. Stripe returns
+// them to /thanks?session=….
+// Paddle: opens Paddle's overlay checkout with the launch discount; after payment the buyer goes
+// to /thanks?txn=…. Either way the thank-you page fetches the licence key from the licence service.
 import Base from '../layouts/Base.astro';
 import DownloadButton from '../components/DownloadButton.astro';
-import { SITE, currentPrice } from '../config';
+import { SITE, currentPrice, reseller } from '../config';
 
 const launch = currentPrice();
+const provider = SITE.checkout;
+const stripe = { enabled: SITE.stripe.enabled };
 const checkout = {
   enabled: SITE.paddle.enabled,
   environment: SITE.paddle.environment,
@@ -27,7 +32,8 @@ const checkout = {
 
       <div id="checkout-ready" hidden>
         <div class="actions"><button class="btn btn-primary" id="open-checkout" type="button">Continue to checkout</button></div>
-        <p class="muted" style="font-size: 0.9rem">Payments are handled by Paddle, our reseller. VAT is included where it applies; sales tax is added at checkout in some places. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>, no questions asked.</p>
+        <p id="checkout-error" class="muted" role="alert" hidden>We couldn’t open checkout. Please try again, or email <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>.</p>
+        <p class="muted" style="font-size: 0.9rem">Payments are handled by {reseller().name}, our reseller. Tax is calculated at checkout. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>, no questions asked.</p>
       </div>
 
       <div id="checkout-off">
@@ -38,8 +44,44 @@ const checkout = {
     </div>
   </section>
 
-  <script is:inline src="https://cdn.paddle.com/paddle/v2/paddle.js" defer></script>
-  <script is:inline define:vars={{ checkout }}>
+  {provider === 'stripe' && (
+    <script is:inline define:vars={{ stripe }}>
+      (() => {
+        const params = new URLSearchParams(location.search);
+        if (!(stripe.enabled || params.has('test'))) return;
+        document.getElementById('checkout-off').hidden = true;
+        document.getElementById('checkout-ready').hidden = false;
+        const button = document.getElementById('open-checkout');
+        const error = document.getElementById('checkout-error');
+
+        const open = async () => {
+          button.disabled = true;
+          button.textContent = 'Opening checkout…';
+          error.hidden = true;
+          try {
+            const res = await fetch('/api/checkout', { method: 'POST' });
+            const { url } = await res.json();
+            if (!res.ok || !url) throw new Error('no checkout url');
+            // Give the analytics request up to a second, then leave without adding /buy to history,
+            // so Back from Stripe's page doesn't bounce straight back into checkout.
+            const sent = window.umami?.track('Checkout opened');
+            await Promise.race([sent, new Promise((r) => setTimeout(r, 1000))]);
+            location.replace(url);
+          } catch {
+            button.disabled = false;
+            button.textContent = 'Continue to checkout';
+            error.hidden = false;
+          }
+        };
+        button.addEventListener('click', open);
+        open();
+      })();
+    </script>
+  )}
+  {provider === 'paddle' && (
+    <Fragment>
+    <script is:inline src="https://cdn.paddle.com/paddle/v2/paddle.js" defer></script>
+    <script is:inline define:vars={{ checkout }}>
     window.addEventListener('load', () => {
       const params = new URLSearchParams(location.search);
       // ?_ptxn=… is a payment link from Paddle (emails, dashboard); Paddle.js opens that checkout itself.
@@ -87,4 +129,6 @@ const checkout = {
       if (!paymentLink) open();
     });
   </script>
+    </Fragment>
+  )}
 </Base>

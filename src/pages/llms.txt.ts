@@ -1,7 +1,7 @@
 // llms.txt: a plain-language map of the site for AI assistants (https://llmstxt.org).
 // Links point at the Markdown copies written by scripts/markdown.mjs.
 import type { APIRoute } from 'astro';
-import { SITE, currentPrice } from '../config';
+import { SITE, currentPrice, reseller } from '../config';
 
 const md = (path: string) => `${SITE.url}${path === '/' ? '/index' : path}.md`;
 
@@ -36,7 +36,7 @@ const sections: [string, [string, string, string][]][] = [
     ['/docs/troubleshooting', 'Troubleshooting', 'Network extension approval, apps not slowing down, missing simulator requests.'],
   ]],
   ['Policies', [
-    ['/terms', 'Terms', `Licence terms. Sold by ${SITE.legal.name} through Paddle as Merchant of Record.`],
+    ['/terms', 'Terms', `Licence terms. Sold by ${SITE.legal.name} through ${reseller().name} as merchant of record.`],
     ['/refunds', 'Refund policy', `${SITE.legal.refundDays}-day refunds, no questions asked.`],
     ['/privacy', 'Privacy', 'No account or analytics in the app; what is collected when buying Pro.'],
   ]],

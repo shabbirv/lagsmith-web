@@ -1,19 +1,23 @@
-// Lagsmith licence service: Paddle webhooks in, signed licence keys out.
+// Lagsmith licence service: payment webhooks (Stripe or Paddle) in, signed licence keys out.
 //
 // Runs as the lagsmith-licence systemd service on 127.0.0.1:8787; Apache forwards /api/ to it.
 // No dependencies beyond Node's standard library.
 //
+//   POST /api/checkout         creates a Stripe Checkout Session; returns {url}
+//   POST /api/stripe/webhook   Stripe events (checkout.session.completed, charge.refunded, …)
 //   POST /api/paddle/webhook   Paddle notifications (transaction.completed, adjustment.*)
-//   GET  /api/licence?txn=…    licence key for a completed checkout (thank-you page)
+//   GET  /api/licence?txn=…    licence key for a completed checkout (thank-you page);
+//                              txn is a Stripe Checkout Session (cs_…) or Paddle transaction (txn_…)
 //   POST /api/lost-key         {email}: re-send keys for an address
 //
 // Configuration comes from the environment (systemd EnvironmentFile=/etc/lagsmith/*.env):
+//   STRIPE_SECRET_KEY, STRIPE_PRICE_ID, STRIPE_WEBHOOK_SECRET, STRIPE_LAUNCH_COUPON
 //   PADDLE_ENV, PADDLE_API_KEY, PADDLE_PRICE_ID, PADDLE_WEBHOOK_SECRET
 //   POSTMARK_TOKEN, MAIL_FROM            (optional until email is set up)
 //   LICENCE_SIGNING_KEY_FILE             (default /etc/lagsmith/license-signing-key)
 //   DATA_DIR                             (default /var/lib/lagsmith)
 //
-// Orders are recorded as soon as Paddle reports them, even if signing or email isn't set up
+// Orders are recorded as soon as the payment provider reports them, even if signing or email isn't set up
 // yet; anything not yet emailed is retried on startup and every 10 minutes.
 
 import { createHmac, createPrivateKey, sign, timingSafeEqual } from 'node:crypto';
@@ -144,6 +148,117 @@ async function handleEvent(event) {
   } else if ((event.event_type === 'adjustment.created' || event.event_type === 'adjustment.updated')
       && data.action === 'refund' && data.status === 'approved' && data.type === 'full') {
     const order = orders[data.transaction_id];
+    if (order && order.status !== 'refunded') {
+      order.status = 'refunded';
+      order.refundedAt = new Date().toISOString();
+      await saveOrders();
+      log(`order ${order.txn} refunded`);
+    }
+  }
+}
+
+// ---------- Stripe (Managed Payments: Stripe is the merchant of record) ----------
+
+const STRIPE_VERSION = '2026-04-22.dahlia';
+const stripeEnabled = () => Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_PRICE_ID);
+
+/** Flattens {a: {b: [x]}} into a[b][0]=x form fields, as Stripe's API expects. */
+function stripeForm(params, prefix = '', out = new URLSearchParams()) {
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
+    const name = prefix ? `${prefix}[${key}]` : key;
+    if (typeof value === 'object') stripeForm(value, name, out);
+    else out.append(name, String(value));
+  }
+  return out;
+}
+
+async function stripe(method, pathname, params) {
+  const res = await fetch(`https://api.stripe.com/v1${pathname}`, {
+    method,
+    headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Stripe-Version': STRIPE_VERSION },
+    body: params ? stripeForm(params) : undefined,
+    signal: AbortSignal.timeout(10000),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(`Stripe ${method} ${pathname}: HTTP ${res.status} ${body.error?.message ?? ''}`);
+  return body;
+}
+
+// The launch coupon applies itself until it stops being valid (its redeem_by date). After that,
+// checkout accepts promotion codes instead, such as the ones support sends to trial users.
+let couponCache = { at: 0, valid: false };
+async function launchCouponValid() {
+  if (!env.STRIPE_LAUNCH_COUPON) return false;
+  if (Date.now() - couponCache.at > 10 * 60_000) {
+    try {
+      couponCache = { at: Date.now(), valid: (await stripe('GET', `/coupons/${env.STRIPE_LAUNCH_COUPON}`)).valid === true };
+    } catch (err) {
+      log(`launch coupon check failed: ${err.message}`);
+      couponCache = { at: Date.now(), valid: false };
+    }
+  }
+  return couponCache.valid;
+}
+
+async function createCheckout() {
+  const launch = await launchCouponValid();
+  const session = await stripe('POST', '/checkout/sessions', {
+    mode: 'payment',
+    line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
+    managed_payments: { enabled: true },
+    ...(launch ? { discounts: [{ coupon: env.STRIPE_LAUNCH_COUPON }] } : { allow_promotion_codes: true }),
+    metadata: { lagsmith: 'pro' },
+    payment_intent_data: { metadata: { lagsmith: 'pro' } },
+    success_url: `${SITE}/thanks?session={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${SITE}/pricing`,
+  });
+  return session.url;
+}
+
+/** Records an order from a Checkout Session, if it's a paid Lagsmith Pro purchase. */
+async function orderFromSession(session) {
+  if (session.metadata?.lagsmith !== 'pro' || session.status !== 'complete') return null;
+  if (!['paid', 'no_payment_required'].includes(session.payment_status)) return null;
+  const email = session.customer_details?.email;
+  if (!email) throw new Error(`session ${session.id} has no email`);
+  const order = await recordOrder({
+    txn: session.id,
+    customerId: session.customer ?? null,
+    email,
+    paidAt: new Date().toISOString(),
+  });
+  if (!order.paymentIntent && session.payment_intent) {
+    Object.assign(order, {
+      provider: 'stripe',
+      paymentIntent: session.payment_intent,
+      amount: session.amount_total / 100,
+      currency: session.currency?.toUpperCase(),
+    });
+    await saveOrders();
+  }
+  return order;
+}
+
+function verifyStripeSignature(header, rawBody) {
+  const secret = env.STRIPE_WEBHOOK_SECRET;
+  if (!secret || !header) return false;
+  const parts = header.split(',').map((p) => p.split('='));
+  const ts = parts.find(([k]) => k === 't')?.[1];
+  const signatures = parts.filter(([k]) => k === 'v1').map(([, v]) => v);
+  if (!ts || !signatures.length || Math.abs(Date.now() / 1000 - Number(ts)) > SIGNATURE_TOLERANCE_S) return false;
+  const expected = Buffer.from(createHmac('sha256', secret).update(`${ts}.${rawBody}`, 'utf8').digest('hex'));
+  return signatures.some((s) => s.length === expected.length && timingSafeEqual(Buffer.from(s), expected));
+}
+
+async function handleStripeEvent(event) {
+  const data = event.data.object;
+  if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+    const order = await orderFromSession(data);
+    if (order) await deliver(order);
+  } else if (event.type === 'charge.refunded' && data.refunded) {
+    // Fully refunded; partial refunds keep the licence.
+    const order = Object.values(orders).find((o) => o.paymentIntent && o.paymentIntent === data.payment_intent);
     if (order && order.status !== 'refunded') {
       order.status = 'refunded';
       order.refundedAt = new Date().toISOString();
@@ -284,25 +399,46 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === 'POST' && url.pathname === '/api/stripe/webhook') {
+      const raw = await readBody(req);
+      if (!verifyStripeSignature(req.headers['stripe-signature'], raw)) {
+        log('stripe webhook rejected: bad signature');
+        return json(res, 400, { error: 'invalid signature' });
+      }
+      const event = JSON.parse(raw);
+      json(res, 200, { received: true });
+      handleStripeEvent(event).catch((err) => log(`stripe event ${event.id} (${event.type}) failed: ${err.message}`));
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/checkout') {
+      if (!stripeEnabled()) return json(res, 503, { error: 'checkout unavailable' });
+      if (limited(`checkout:${clientIp(req)}`, 20, 3600_000)) return json(res, 429, { error: 'too many requests' });
+      return json(res, 200, { url: await createCheckout() });
+    }
+
     if (req.method === 'GET' && url.pathname === '/api/licence') {
-      const txn = url.searchParams.get('txn') ?? '';
-      if (!/^txn_[a-z0-9]{26}$/.test(txn)) return json(res, 400, { error: 'invalid transaction' });
+      // A Paddle transaction (txn_…) or a Stripe Checkout Session (cs_…).
+      const txn = url.searchParams.get('txn') ?? url.searchParams.get('session') ?? '';
+      const isPaddle = /^txn_[a-z0-9]{26}$/.test(txn);
+      const isStripe = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(txn);
+      if (!isPaddle && !isStripe) return json(res, 400, { error: 'invalid transaction' });
       let order = orders[txn];
       if (!order) {
-        // The webhook may not have arrived yet; ask Paddle directly.
-        let transaction;
+        // The webhook may not have arrived yet; ask the payment provider directly.
         try {
-          transaction = await paddle(`/transactions/${txn}`);
+          order = isPaddle
+            ? await orderFromTransaction(await paddle(`/transactions/${txn}`))
+            : await orderFromSession(await stripe('GET', `/checkout/sessions/${txn}`));
         } catch {
           return json(res, 404, { error: 'not found' });
         }
-        order = await orderFromTransaction(transaction);
         if (!order) return json(res, 200, { status: 'pending' });
         deliver(order).catch((err) => log(`delivery for ${txn} failed: ${err.message}`));
       }
       if (order.status === 'refunded') return json(res, 200, { status: 'refunded' });
       if (!order.licence) return json(res, 200, { status: 'processing', email: order.email });
-      return json(res, 200, { status: 'ready', email: order.email, licence: order.licence });
+      return json(res, 200, { status: 'ready', email: order.email, licence: order.licence, amount: order.amount, currency: order.currency });
     }
 
     if (req.method === 'POST' && url.pathname === '/api/lost-key') {
@@ -331,6 +467,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 await loadOrders();
-server.listen(PORT, '127.0.0.1', () => log(`licence service on 127.0.0.1:${PORT} (${env.PADDLE_ENV ?? 'sandbox'})`));
+const stripeMode = env.STRIPE_SECRET_KEY?.startsWith('sk_live_') || env.STRIPE_SECRET_KEY?.startsWith('rk_live_') ? 'live' : 'test';
+server.listen(PORT, '127.0.0.1', () => log(`licence service on 127.0.0.1:${PORT} (stripe: ${stripeEnabled() ? stripeMode : 'off'}, paddle: ${env.PADDLE_API_KEY ? env.PADDLE_ENV ?? 'sandbox' : 'off'})`));
 deliverPending();
 setInterval(deliverPending, 10 * 60_000);

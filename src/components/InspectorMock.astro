@@ -1,0 +1,183 @@
+---
+// A drawn copy of Lagsmith's request inspector: the request list, the selected response as a
+// JSON tree, and the preview that appears over an image URL. Used until real screenshots are added.
+import MockAppIcon from './MockAppIcon.astro';
+
+interface Row { path: string; method: string; status: string; time: string; size: string; tone?: 'ok' | 'muted' | 'bad'; selected?: boolean }
+const rows: Row[] = [
+  { path: '/v1/session', method: 'POST', status: '200 OK', time: '1.3 s', size: '412 bytes' },
+  { path: '/v1/user/profile', method: 'GET', status: '304 Not Modified', time: '640 ms', size: '—', tone: 'muted' },
+  { path: '/v1/pantry/items', method: 'GET', status: '200 OK', time: '912 ms', size: '8 KB' },
+  { path: '/v1/recipes?page=2', method: 'GET', status: '200 OK', time: '2.8 s', size: '25 KB', selected: true },
+  { path: '/r/412.jpg', method: 'GET', status: '200 OK', time: '3.1 s', size: '64 KB' },
+  { path: '/r/387.jpg', method: 'GET', status: '200 OK', time: '2.6 s', size: '58 KB' },
+  { path: '/v1/cart', method: 'POST', status: '200 OK', time: '1.4 s', size: '1 KB' },
+  { path: '/v1/payments', method: 'POST', status: 'Timed out', time: '30 s', size: '—', tone: 'bad' },
+  { path: '/v1/events', method: 'POST', status: '202 Accepted', time: '1.9 s', size: '—' },
+  { path: '/v1/recommendations', method: 'GET', status: '200 OK', time: '2.2 s', size: '6 KB' },
+  { path: '/r/355.jpg', method: 'GET', status: '200 OK', time: '2.9 s', size: '61 KB' },
+];
+
+// The JSON tree: depth, key, value, value kind, and whether it's an open/closed group.
+type Kind = 'group' | 'string' | 'number' | 'bool' | 'url';
+interface Node { depth: number; key: string; value: string; kind: Kind; open?: boolean; preview?: boolean }
+const tree: Node[] = [
+  { depth: 0, key: 'recipes', value: '[ 24 items ]', kind: 'group', open: true },
+  { depth: 1, key: '0', value: '{ 7 keys }', kind: 'group', open: true },
+  { depth: 2, key: 'id', value: '412', kind: 'number' },
+  { depth: 2, key: 'title', value: '"Lemon orzo with peas"', kind: 'string' },
+  { depth: 2, key: 'minutes', value: '25', kind: 'number' },
+  { depth: 2, key: 'servings', value: '4', kind: 'number' },
+  { depth: 2, key: 'imageUrl', value: '"https://cdn.pantryhq.app/r/412.jpg"', kind: 'url', preview: true },
+  { depth: 2, key: 'tags', value: '[ 3 items ]', kind: 'group' },
+  { depth: 2, key: 'saved', value: 'true', kind: 'bool' },
+  ...Array.from({ length: 6 }, (_, i): Node => ({ depth: 1, key: String(i + 1), value: '{ 7 keys }', kind: 'group' })),
+  { depth: 0, key: 'nextPage', value: '"/v1/recipes?page=3"', kind: 'string' },
+];
+---
+<div class="ins-wrap"><figure class="ins" aria-label="Illustration: Lagsmith's request inspector showing a JSON response as a tree, with a photo preview">
+  <div class="ins-top" aria-hidden="true">
+    <div class="ins-lights"><i></i><i></i><i></i></div>
+    <span class="ins-badge"><i></i>Watching 1 app · 1 throttled</span>
+  </div>
+  <div class="ins-body">
+    <div class="ins-left">
+      <div class="ins-app">
+        <MockAppIcon icon="pantry" size={36} />
+        <div><b>Pantry</b><small>iOS Simulator · iPhone 17 Pro</small></div>
+      </div>
+      <div class="ins-pills" aria-hidden="true">
+        <span class="ins-pill ins-pill-warn">Very Bad Network</span>
+        <span class="ins-pill">Time-outs</span>
+        <span class="ins-pill">All Hosts</span>
+      </div>
+      <div class="ins-search" aria-hidden="true">Search URLs, headers and bodies</div>
+      <div class="ins-table" role="table" aria-label="Requests">
+        <div class="ins-tr ins-th" role="row"><span role="columnheader">Path</span><span role="columnheader">Method</span><span role="columnheader">Status</span><span role="columnheader">Time</span><span role="columnheader">Size</span></div>
+        {rows.map((r) => (
+          <div class:list={['ins-tr', { 'ins-sel': r.selected }]} role="row">
+            <span role="cell">{r.path}</span><span role="cell">{r.method}</span>
+            <span role="cell" class={`ins-${r.tone ?? 'ok'}`}>{r.status}</span>
+            <span role="cell">{r.time}</span><span role="cell">{r.size}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="ins-right">
+      <div class="ins-url">
+        <span class="ins-method">GET</span>
+        <span class="ins-href">https://api.pantryhq.app/v1/recipes?page=2</span>
+        <span class="ins-code">200 OK</span>
+      </div>
+      <div class="ins-meta">2.8 s · 25 KB · 11:46:36 AM</div>
+      <div class="ins-tabs" aria-hidden="true">
+        <span class="ins-seg"><span>Request</span><span class="on">Response</span></span>
+        <span class="ins-seg"><span class="on">Body</span><span>Headers</span></span>
+        <span class="ins-seg ins-seg-end"><span class="on">Tree</span><span>Text</span></span>
+      </div>
+      <div class="ins-tree">
+        <div class="ins-node ins-th"><span>Key</span><span>Value</span></div>
+        {tree.map((n) => (
+          <div class:list={['ins-node', { 'ins-hover': n.preview }]}>
+            <span style={`padding-left: ${n.depth * 14}px`}>
+              <i class="ins-caret">{n.kind === 'group' ? (n.open ? '⌄' : '›') : ''}</i>{n.key}
+            </span>
+            <span class={`ins-v-${n.kind}`}>{n.value}</span>
+          </div>
+        ))}
+        <div class="ins-preview" aria-hidden="true">
+          <svg viewBox="0 0 160 120" role="img">
+            <defs>
+              <linearGradient id="ins-table" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b98a5e" /><stop offset="1" stop-color="#8a5f3c" /></linearGradient>
+              <radialGradient id="ins-orzo" cx="0.45" cy="0.4" r="0.6"><stop offset="0" stop-color="#f6e7b4" /><stop offset="1" stop-color="#e2c77e" /></radialGradient>
+            </defs>
+            <rect width="160" height="120" fill="url(#ins-table)" />
+            <circle cx="78" cy="62" r="46" fill="#f4f1ec" />
+            <circle cx="78" cy="62" r="36" fill="url(#ins-orzo)" />
+            {[[64, 50], [86, 46], [92, 66], [70, 72], [80, 58], [60, 64], [96, 54], [76, 80], [88, 76]].map(([x, y]) => <circle cx={x} cy={y} r="3.4" fill="#5aa344" />)}
+            <path d="M70 40 q6 -4 12 0" stroke="#3f7d2f" stroke-width="2.5" fill="none" stroke-linecap="round" />
+            <circle cx="132" cy="28" r="14" fill="#f7d54a" /><circle cx="132" cy="28" r="10" fill="#fbe68c" />
+            <path d="M132 18 v20 M122 28 h20 M125 21 l14 14 M139 21 l-14 14" stroke="#f3cf3c" stroke-width="1.2" />
+          </svg>
+          <small>800 × 600 · 64 KB</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</figure></div>
+
+<style>
+  .ins-wrap { container-type: inline-size; }
+  .ins { margin: 0; border-radius: 14px; overflow: hidden; background: #262321; color: #ece8e4; font-size: 12.5px; line-height: 1.35; text-align: left; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 80px -24px rgba(15,26,43,0.55); }
+  .ins-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.35); }
+  .ins-lights { display: flex; gap: 7px; }
+  .ins-lights i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+  .ins-lights i:nth-child(2) { background: #febc2e; }
+  .ins-lights i:nth-child(3) { background: #28c840; }
+  .ins-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: rgba(40,200,64,0.14); font-size: 11.5px; font-weight: 600; }
+  .ins-badge i { width: 7px; height: 7px; border-radius: 50%; background: #28c840; }
+
+  .ins-body { display: grid; grid-template-columns: 1.2fr 1fr; }
+  .ins-left { padding: 14px 14px 16px; border-right: 1px solid rgba(0,0,0,0.35); min-width: 0; }
+  .ins-app { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .ins-app :global(svg) { border-radius: 9px; }
+  .ins-app b { display: block; font-size: 16px; }
+  .ins-app small { color: #a39d98; font-size: 11.5px; }
+  .ins-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .ins-pill { padding: 3px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.12); font-weight: 600; font-size: 11.5px; }
+  .ins-pill-warn { color: #f5a524; border-color: rgba(245,165,36,0.5); background: rgba(245,165,36,0.08); }
+  .ins-search { padding: 5px 10px; border-radius: 7px; background: rgba(255,255,255,0.06); color: #8f8984; margin-bottom: 10px; font-size: 11.5px; }
+
+  .ins-tr { display: grid; grid-template-columns: minmax(0, 1fr) 50px 118px 56px 72px; gap: 8px; padding: 4px 8px; border-radius: 5px; white-space: nowrap; }
+  .ins-tr > span { overflow: hidden; text-overflow: ellipsis; }
+  .ins-tr > span:nth-child(4), .ins-tr > span:nth-child(5) { text-align: right; font-variant-numeric: tabular-nums; }
+  .ins-tr:nth-child(odd):not(.ins-th) { background: rgba(255,255,255,0.03); }
+  .ins-th { color: #a39d98; font-weight: 600; font-size: 11.5px; border-bottom: 1px solid rgba(255,255,255,0.08); border-radius: 0; margin-bottom: 4px; }
+  .ins-sel, .ins-sel:nth-child(odd) { background: #0a63d1 !important; color: #fff; }
+  .ins-ok { color: #3fcf6e; }
+  .ins-muted { color: #a39d98; }
+  .ins-bad { color: #ff6b6b; font-weight: 600; }
+  .ins-sel .ins-ok { color: #b8f5c9; }
+
+  .ins-right { padding: 14px 14px 16px; min-width: 0; position: relative; }
+  .ins-url { display: flex; align-items: center; gap: 8px; }
+  .ins-method { padding: 1px 7px; border-radius: 5px; background: rgba(10,99,209,0.28); color: #7cb4ff; font-weight: 700; font-size: 11px; }
+  .ins-href { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .ins-code { padding: 1px 7px; border-radius: 5px; background: rgba(40,200,64,0.18); color: #3fcf6e; font-weight: 700; font-size: 11px; }
+  .ins-meta { color: #a39d98; font-size: 11.5px; margin: 4px 0 10px; }
+  .ins-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+  .ins-seg { display: inline-flex; border-radius: 7px; background: rgba(255,255,255,0.06); padding: 2px; }
+  .ins-seg span { padding: 2px 9px; border-radius: 5px; font-size: 11.5px; }
+  .ins-seg .on { background: #0a63d1; color: #fff; }
+  .ins-seg-end { margin-left: auto; }
+
+  .ins-tree { position: relative; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+  .ins-node { display: grid; grid-template-columns: 42% 58%; padding: 2.5px 6px; border-radius: 4px; white-space: nowrap; }
+  .ins-node > span { overflow: hidden; text-overflow: ellipsis; }
+  .ins-node > span:first-child { color: #c792ea; }
+  .ins-node.ins-th > span { color: #a39d98; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 600; }
+  .ins-caret { display: inline-block; width: 12px; font-style: normal; color: #a39d98; }
+  .ins-v-group { color: #a39d98; }
+  .ins-v-string { color: #ff8b7b; }
+  .ins-v-url { color: #ff8b7b; text-decoration: underline dotted; }
+  .ins-v-number, .ins-v-bool { color: #7cb4ff; }
+  .ins-hover { background: rgba(255,255,255,0.08); }
+
+  .ins-preview { position: absolute; right: 6px; top: 118px; width: 176px; padding: 6px 6px 4px; border-radius: 10px; background: #3a3633; box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 18px 40px -12px rgba(0,0,0,0.7); text-align: center; }
+  .ins-preview svg { display: block; width: 100%; height: auto; border-radius: 6px; }
+  .ins-preview small { display: block; margin-top: 4px; color: #a39d98; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; }
+
+  @container (max-width: 860px) {
+    .ins-body { grid-template-columns: 1fr; }
+    .ins-left { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.35); }
+    .ins-tr { grid-template-columns: minmax(0, 1fr) 50px 118px 56px; }
+    .ins-tr > span:nth-child(5) { display: none; }
+  }
+  @container (max-width: 480px) {
+    .ins-tr { grid-template-columns: minmax(0, 1fr) 104px 52px; }
+    .ins-tr > span:nth-child(2) { display: none; }
+    .ins-seg-end { display: none; }
+    .ins-preview { width: 140px; top: 130px; }
+  }
+</style>

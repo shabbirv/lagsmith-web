@@ -6,6 +6,7 @@ import Cta from '../components/Cta.astro';
 import AppMock from '../components/AppMock.astro';
 import AgentTerminal from '../components/AgentTerminal.astro';
 import MiniMonitor from '../components/MiniMonitor.astro';
+import InspectorMock from '../components/InspectorMock.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import { SITE } from '../config';
 import PriceTag from '../components/PriceTag.astro';
@@ -89,6 +90,15 @@ const icons: Record<string, string> = {
   </section>
 
   <section class="section section-soft">
+    <div class="wrap">
+      <p class="eyebrow">Inspector</p>
+      <h2 style="margin-top: 0">See every request, down to the photo</h2>
+      <p class="lead">Headers, bodies and timing for every request a simulator app makes. Browse JSON as a tree, hover an image URL to preview it, and export as HAR.</p>
+      <InspectorMock />
+    </div>
+  </section>
+
+  <section class="section">
     <div class="wrap split split-reverse">
       <MiniMonitor />
       <div>
@@ -100,7 +110,7 @@ const icons: Record<string, string> = {
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section-soft">
     <div class="wrap">
       <p class="eyebrow">Compared with Apple’s Network Link Conditioner</p>
       <h2 style="margin-top: 0">Network Link Conditioner, per app</h2>
@@ -109,7 +119,7 @@ const icons: Record<string, string> = {
     </div>
   </section>
 
-  <section class="section section-soft">
+  <section class="section">
     <div class="wrap">
       <h2 style="margin-top: 0">Free to start, Pro when you need it</h2>
       <div class="plans">

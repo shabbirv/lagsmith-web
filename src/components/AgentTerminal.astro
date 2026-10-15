@@ -104,14 +104,25 @@ const outLine = (line: string) => {
       }
     };
 
-    async function play() {
+    // The first run starts with the prompt and the agent's first step already on screen, so the
+    // terminal is never an empty black box; Replay types the prompt out.
+    async function play(first = false) {
       const id = ++run;
       replay.hidden = true;
       term.classList.add('animating');
-      blocks.forEach((b) => b.classList.remove('shown'));
+      if (!first) blocks.forEach((b) => b.classList.remove('shown'));
       body.scrollTop = 0;
       for (const el of blocks) {
         if (id !== run) return;
+        if (first && el === blocks[0]) {
+          reveal(el);
+          continue;
+        }
+        if (first && el === blocks[1]) {
+          reveal(el);
+          await sleep(300);
+          continue;
+        }
         if (el.dataset.kind === 'prompt' && typed) {
           const text = typed.dataset.type ?? '';
           typed.textContent = '';
@@ -140,11 +151,12 @@ const outLine = (line: string) => {
     }
 
     term.classList.add('js');
-    replay.addEventListener('click', play);
+    blocks.slice(0, 2).forEach((b) => b.classList.add('shown'));
+    replay.addEventListener('click', () => play());
     new IntersectionObserver((entries, obs) => {
       if (entries.some((e) => e.isIntersecting)) {
         obs.disconnect();
-        play();
+        play(true);
       }
     }, { threshold: 0.35 }).observe(term);
   });

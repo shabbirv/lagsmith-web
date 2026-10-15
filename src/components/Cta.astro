@@ -1,19 +1,17 @@
 ---
 import DownloadButton from './DownloadButton.astro';
 import { SITE } from '../config';
-interface Props { title?: string; text?: string }
-const {
-  title = 'Slow down one app, not your whole Mac',
-  text = `Free to download, with a 14-day Pro trial. No account, no card. Requires ${SITE.minMacOS}.`,
-} = Astro.props;
+interface Props { text?: string }
+const { text = `Free download with a 14-day Pro trial. No account, no card. ${SITE.minMacOS}.` } = Astro.props;
 ---
-<section class="section section-soft center">
-  <div class="wrap">
-    <h2 style="margin-top: 0">{title}</h2>
-    <p class="lead">{text}</p>
-    <div class="actions">
-      <DownloadButton />
-      <a class="btn btn-secondary" href="/network-link-conditioner-alternative">Compare with Network Link Conditioner</a>
-    </div>
+<section class="section">
+  <div class="wrap cta">
+    <DownloadButton />
+    <p>{text}</p>
   </div>
 </section>
+
+<style>
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .cta p { margin: 0; color: var(--muted); }
+</style>

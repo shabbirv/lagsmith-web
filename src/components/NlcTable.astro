@@ -3,6 +3,7 @@ interface Props { short?: boolean }
 const { short = false } = Astro.props;
 const full = [
   ['What it slows', 'The whole Mac: your browser, Slack, Xcode downloads, your AI agent, everything', 'Only the apps you choose'],
+  ['AI coding agents', 'Slowed down along with the app under test, and there’s no command line or API for an agent to turn it on', 'Stay at full speed. Through the built-in MCP server, Claude Code, Cursor or Codex can set the network for one app, run your tests and read the failed requests'],
   ['iOS Simulator', 'Throttles the whole Mac, so every simulator app and everything else too', 'Per simulator app, even per simulator device'],
   ['How you get it', 'Separate "Additional Tools for Xcode" download from Apple’s developer site, installed as a System Settings pane', 'A normal Mac app with a menu bar icon'],
   ['Failures', 'Packet loss and bandwidth/latency only', 'Airplane Mode, refused connections, time-outs, dropped connections, outages that come and go'],
@@ -13,11 +14,12 @@ const full = [
 // For the home page: a quick yes/no read. The full table is on /network-link-conditioner-alternative.
 const brief = [
   ['What it slows', 'The whole Mac', 'Only the apps you pick'],
+  ['Your AI agent', 'Slowed down too, and can’t control it', 'Full speed, and drives Lagsmith over MCP'],
   ['iOS Simulator', 'Every app at once', 'One app, even on one device'],
   ['Failures', 'Packet loss only', 'Airplane Mode, time-outs, dropped and refused connections'],
   ['Fail or mock one endpoint', '✕', '✓'],
   ['See requests', '✕', '✓'],
-  ['UI tests and AI agents', '✕', '✓'],
+  ['UI tests and command line', '✕', '✓'],
 ];
 const rows = short ? brief : full;
 ---

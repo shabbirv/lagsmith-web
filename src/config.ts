@@ -14,13 +14,13 @@ export const SITE = {
 
   // Which payment provider /buy uses. Both are wired up in the licence service; the Terms,
   // Privacy and Refunds pages name whichever one is chosen here.
-  checkout: 'paddle' as 'stripe' | 'paddle',
+  checkout: 'stripe' as 'stripe' | 'paddle',
 
   // Stripe Managed Payments (Stripe is the merchant of record). The licence service creates the
   // Checkout Session, so nothing secret is here. While `enabled` is false, visitors see
   // "coming soon" and checkout only opens at /buy?test=1.
   stripe: {
-    enabled: false,
+    enabled: true,
   },
 
   // Paddle checkout on /buy. While `enabled` is false, visitors see "coming soon" and the

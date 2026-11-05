@@ -15,8 +15,13 @@ const steps = [
   <h2>About the network extension</h2>
   <p>To control one app’s network without touching the rest of the Mac, Lagsmith installs a network extension. This is the standard way macOS lets apps work with network traffic, and macOS always asks you to approve it. Lagsmith can’t throttle anything until it is allowed.</p>
   <p>If you missed the prompt, see <a href="/docs/troubleshooting">troubleshooting</a>.</p>
+  {SITE.beta ? <>
+  <h2>The beta</h2>
+  <p>Lagsmith is free during the beta, with everything unlocked. {SITE.betaPromise} <a href="/pricing">About the beta</a>.</p>
+  </> : <>
   <h2>Your trial</h2>
   <p>Every install starts with a 14-day Pro trial with everything unlocked. After that, the free version keeps working. <a href="/pricing">Pricing</a>.</p>
+  </>}
   <h2>Next</h2>
   <ul>
     <li><a href="/docs/conditions">Presets and custom conditions</a></li>

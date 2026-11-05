@@ -12,6 +12,18 @@ export const SITE = {
   // Signed and notarized .dmg. null shows "coming soon".
   downloadUrl: 'https://downloads.lagsmith.com/Lagsmith.dmg' as string | null,
 
+  // Free public beta: everything is unlocked in the app and there's no checkout. The pricing page,
+  // /buy and the FAQs say so and make the early-user promise below. Set to false when paid plans
+  // start; the plans, prices and checkout below then come back.
+  beta: true,
+  betaPromise: 'When paid plans start, everyone who used Lagsmith during the beta keeps Pro for free.',
+
+  // Free public beta: everything is unlocked in the app and there's no checkout. The pricing page,
+  // /buy and the FAQs say so and make the early-user promise below. Set to false when paid plans
+  // start; the plans, prices and checkout below then come back.
+  beta: true,
+  betaPromise: 'When paid plans start, everyone who used Lagsmith during the beta keeps Pro for free.',
+
   // Which payment provider /buy uses. Both are wired up in the licence service; the Terms,
   // Privacy and Refunds pages name whichever one is chosen here.
   checkout: 'stripe' as 'stripe' | 'paddle',
@@ -78,7 +90,7 @@ export function currentPrice(today = new Date()) {
 }
 
 /** Whether visitors can buy Pro on /buy right now (with the chosen provider). */
-export const checkoutEnabled = () => (SITE.checkout === 'stripe' ? SITE.stripe.enabled : SITE.paddle.enabled);
+export const checkoutEnabled = () => !SITE.beta && (SITE.checkout === 'stripe' ? SITE.stripe.enabled : SITE.paddle.enabled);
 
 // The company that sells to the buyer on our behalf (merchant of record), for the legal pages.
 export function reseller() {

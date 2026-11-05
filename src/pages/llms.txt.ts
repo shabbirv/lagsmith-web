@@ -8,7 +8,7 @@ const md = (path: string) => `${SITE.url}${path === '/' ? '/index' : path}.md`;
 const sections: [string, [string, string, string][]][] = [
   ['Product', [
     ['/', 'Home', 'What Lagsmith does, the comparison with Network Link Conditioner, AI agent support and FAQ.'],
-    ['/pricing', 'Pricing', 'Free version, 14-day Pro trial, and Pro as a one-time purchase with a year of updates.'],
+    ['/pricing', 'Pricing', SITE.beta ? 'Free during the beta, with everything unlocked.' : 'Free version, 14-day Pro trial, and Pro as a one-time purchase with a year of updates.'],
     ['/download', 'Download', 'Requirements and install steps, including allowing the network extension.'],
   ]],
   ['Compared with other tools', [
@@ -38,7 +38,7 @@ const sections: [string, [string, string, string][]][] = [
   ['Policies', [
     ['/terms', 'Terms', `Licence terms. Sold by ${SITE.legal.name} through ${reseller().name} as merchant of record.`],
     ['/refunds', 'Refund policy', `${SITE.legal.refundDays}-day refunds, no questions asked.`],
-    ['/privacy', 'Privacy', 'No account or analytics in the app; what is collected when buying Pro.'],
+    ['/privacy', 'Privacy', 'Traffic stays on the Mac; the anonymous usage statistics the app sends; what is collected when buying Pro.'],
   ]],
 ];
 
@@ -57,9 +57,9 @@ export const GET: APIRoute = () => {
 - Presets: Edge, 3G, DSL, LTE, WiFi, Very Bad Network, 100% Loss, plus custom bandwidth, latency, jitter and packet loss.
 - Failures: Airplane Mode for one app, refused connections, time-outs, dropped connections, intermittent outages, and failing or mocking a single endpoint.
 - Request monitoring for iOS Simulator apps with no certificates or proxy settings; HAR export.
-- Automation: XCTest UI test helper, \`ivar\` command line tool, \`lagsmith://\` URL scheme, local HTTP API, and a built-in MCP server for AI agents.
-- Requires ${SITE.minMacOS}, Apple silicon or Intel. Runs locally; no account, no analytics.
-- Pricing: free version; 14-day Pro trial; Pro is ${price}, a one-time purchase with a year of updates.
+- Automation: XCTest UI test helper, \`lagsmith\` command line tool, \`lagsmith://\` URL scheme, local HTTP API, and a built-in MCP server for AI agents.
+- Requires ${SITE.minMacOS}, Apple silicon or Intel. Runs locally with no account; traffic never leaves the Mac.
+- Pricing: ${SITE.beta ? `free during the beta, with everything unlocked. ${SITE.betaPromise}` : `free version; 14-day Pro trial; Pro is ${price}, a one-time purchase with a year of updates.`}
 
 Every page is also available as Markdown, linked below, or by requesting any page with an
 \`Accept: text/markdown\` header.

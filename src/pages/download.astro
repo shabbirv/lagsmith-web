@@ -5,14 +5,14 @@ import { appSchema } from '../lib';
 ---
 <Base
   title="Download Lagsmith for Mac"
-  description={`Download Lagsmith for Mac. Free with a 14-day Pro trial. Requires ${SITE.minMacOS}, Apple silicon or Intel.`}
+  description={`Download Lagsmith for Mac. ${SITE.beta ? 'Free during the beta, with everything unlocked' : 'Free with a 14-day Pro trial'}. Requires ${SITE.minMacOS}, Apple silicon or Intel.`}
   breadcrumbs={[{ name: 'Download', href: '/download' }]}
   jsonLd={[appSchema()]}
 >
   <section class="page-head">
     <div class="wrap narrow">
       <h1>Download Lagsmith</h1>
-      <p class="lead">Free, with a 14-day Pro trial. No account, no card.</p>
+      <p class="lead">{SITE.beta ? <>Free during the beta, with everything unlocked. No account, no card. <a href="/pricing">About the beta</a>.</> : <>Free, with a 14-day Pro trial. No account, no card.</>}</p>
       <div class="actions">
         {SITE.downloadUrl
           ? <a class="btn btn-primary" href={SITE.downloadUrl} data-umami-event="Download" data-umami-event-page="/download">Download for Mac</a>
@@ -30,8 +30,10 @@ import { appSchema } from '../lib';
         <li><strong>Pick an app</strong> from the menu bar icon and choose a preset.</li>
       </ol>
       <div class="callout"><p>Not seeing the prompt? See <a href="/docs/troubleshooting">troubleshooting</a>, or the full <a href="/docs/getting-started">getting started guide</a>.</p></div>
-      <h2>Already bought Pro?</h2>
-      <p>Open the thank-you email and click <strong>Activate Lagsmith</strong>, or paste your key in Lagsmith › Lagsmith Pro… › Enter Licence Key… <a href="/lost-key">Lost your key?</a></p>
+      {!SITE.beta && <>
+        <h2>Already bought Pro?</h2>
+        <p>Open the thank-you email and click <strong>Activate Lagsmith</strong>, or paste your key in Lagsmith › Lagsmith Pro… › Enter Licence Key… <a href="/lost-key">Lost your key?</a></p>
+      </>}
     </div>
   </section>
 </Base>

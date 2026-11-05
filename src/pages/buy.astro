@@ -7,24 +7,24 @@
 // to /thanks?txn=…. Either way the thank-you page fetches the licence key from the licence service.
 import Base from '../layouts/Base.astro';
 import DownloadButton from '../components/DownloadButton.astro';
-import { SITE, currentPrice, reseller } from '../config';
+import { SITE, currentPrice, reseller, checkoutEnabled } from '../config';
 
 const launch = currentPrice();
 const provider = SITE.checkout;
-const stripe = { enabled: SITE.stripe.enabled };
+const stripe = { enabled: checkoutEnabled() };
 const checkout = {
-  enabled: SITE.paddle.enabled,
+  enabled: checkoutEnabled(),
   environment: SITE.paddle.environment,
   token: SITE.paddle.clientToken,
   priceId: SITE.paddle.priceId,
   discountId: launch.regularLabel ? SITE.paddle.launchDiscountId : null,
 };
 ---
-<Base title="Buy Lagsmith Pro" description="Buy Lagsmith Pro." noindex>
+<Base title={SITE.beta ? 'Lagsmith is free during the beta' : 'Buy Lagsmith Pro'} description="Buy Lagsmith Pro." noindex>
   <section class="page-head center">
     <div class="wrap narrow">
-      <h1>Buy Lagsmith Pro</h1>
-      <p class="lead">
+      <h1>{SITE.beta ? 'Lagsmith is free during the beta' : 'Buy Lagsmith Pro'}</h1>
+      <p class="lead" hidden={SITE.beta}>
         {launch.regularLabel
           ? <><s class="muted">{launch.regularLabel}</s> <strong>{launch.label}</strong> launch price until {launch.launchEndsLabel}. One-time purchase with a year of updates.</>
           : <><strong>{launch.label}</strong>, one-time purchase with a year of updates.</>}
@@ -37,7 +37,9 @@ const checkout = {
       </div>
 
       <div id="checkout-off">
-        <p>Lagsmith Pro purchases open soon. In the meantime, every install includes a 14-day Pro trial.</p>
+        {SITE.beta
+          ? <p>There’s nothing to buy: everything is unlocked, with no account or licence key. {SITE.betaPromise}</p>
+          : <p>Lagsmith Pro purchases open soon. In the meantime, every install includes a 14-day Pro trial.</p>}
         <div class="actions"><DownloadButton /></div>
         <p class="muted">Questions? <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a></p>
       </div>

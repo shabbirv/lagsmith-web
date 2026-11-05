@@ -7,7 +7,14 @@ import PriceTag from '../components/PriceTag.astro';
 
 import { appSchema, faqSchema } from '../lib';
 
-const faq = [
+const betaFaq = [
+  { q: 'Is it really free?', a: 'Yes. During the beta every feature is unlocked, with no account, no trial and no licence key.' },
+  { q: 'What happens when the beta ends?', a: `${SITE.betaPromise} Lagsmith remembers that your Mac used it during the beta, so there’s nothing to sign up for or keep.` },
+  { q: 'Will there be paid plans?', a: 'Yes, later. We’ll announce prices before they start, and beta users keep Pro for free.' },
+  { q: 'How do I send feedback?', a: `Email <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a>. Bug reports and feature requests shape what comes next.` },
+];
+
+const paidFaq = [
   { q: 'Is Lagsmith Pro a subscription?', a: 'No. It’s a one-time purchase that includes a year of updates.' },
   { q: 'What happens after the year of updates?', a: 'Lagsmith keeps working with Pro unlocked, on the last version released during your year, for as long as it runs on your Mac. Buy again whenever you want another year of updates.' },
   { q: 'How many Macs can I use it on?', a: 'A licence is for one person, on all the Macs they personally use, including CI machines running their own tests. Each person on a team needs their own licence.' },
@@ -17,20 +24,44 @@ const faq = [
   { q: 'How do I activate Pro?', a: 'After buying, click Activate Lagsmith on the thank-you page or in the email, or paste your licence key in Lagsmith › Lagsmith Pro… › Enter Licence Key…' },
   { q: 'I lost my licence key.', a: 'Use the <a href="/lost-key">lost key page</a> to get it again.' },
 ];
+
+const faq = SITE.beta ? betaFaq : paidFaq;
 ---
 <Base
   title="Pricing"
-  description="Lagsmith is free to download with a 14-day Pro trial. The free version keeps working after the trial; Pro unlocks every preset, failure modes, mocking and automation."
+  description={SITE.beta
+    ? `Lagsmith is free during the beta, with every preset, failure mode, mocking and automation unlocked. ${SITE.betaPromise}`
+    : 'Lagsmith is free to download with a 14-day Pro trial. The free version keeps working after the trial; Pro unlocks every preset, failure modes, mocking and automation.'}
   breadcrumbs={[{ name: 'Pricing', href: '/pricing' }]}
   jsonLd={[appSchema(), faqSchema(faq)]}
 >
   <section class="page-head center">
     <div class="wrap">
       <h1>Pricing</h1>
-      <p class="lead">Start with 14 days of Pro, free. No account, no card.</p>
+      <p class="lead">{SITE.beta ? 'Lagsmith is free during the beta. No account, no card.' : 'Start with 14 days of Pro, free. No account, no card.'}</p>
     </div>
   </section>
   <section class="section" style="padding-top: 0">
+    {SITE.beta ? (
+    <div class="wrap narrow">
+      <div class="plan pro">
+        <h3>Beta</h3>
+        <p class="price">$0 <span class="muted" style="font-size: 1rem; font-weight: 500">during the beta</span></p>
+        <p class="muted" style="margin-top: 0">Everything is unlocked:</p>
+        <ul>
+          <li>Every preset per app, custom presets and changing conditions over time</li>
+          <li>Airplane Mode and failure modes</li>
+          <li>Fail and mock endpoints</li>
+          <li>Automation: UI test helper, command line, URL scheme, HTTP API</li>
+          <li>MCP server for AI agents</li>
+          <li>Unlimited request history, search filters, HAR export</li>
+          <li>Mini monitor</li>
+        </ul>
+        <DownloadButton />
+      </div>
+      <p class="center"><strong>{SITE.betaPromise}</strong></p>
+    </div>
+    ) : (
     <div class="wrap">
       <div class="plans">
         <div class="plan">
@@ -61,6 +92,7 @@ const faq = [
       </div>
       <p class="center muted">Prices in US dollars; checkout can show your local currency. Tax is calculated at checkout. Payments are handled by {reseller().name}. <a href="/refunds">{SITE.legal.refundDays}-day refunds</a>.</p>
     </div>
+    )}
     <div class="wrap narrow"><Faq items={faq} /></div>
   </section>
 </Base>

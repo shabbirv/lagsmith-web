@@ -2,6 +2,7 @@
 import Docs from '../../layouts/Docs.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import AgentTerminal from '../../components/AgentTerminal.astro';
+import { SITE } from '../../config';
 
 const bin = '/Applications/Lagsmith.app/Contents/MacOS/lagsmith-mcp';
 const claudeCode = `claude mcp add --scope user lagsmith -- "${bin}"`;
@@ -31,7 +32,7 @@ const tools = [
     <li>fail or mock endpoints.</li>
   </ul>
   <p>Because Lagsmith only slows down the app under test, the agent’s own connection stays at full speed.</p>
-  <div class="callout"><p>The MCP server ships inside the app at <code>{bin}</code>, so Lagsmith needs to be in your Applications folder. Automation, including MCP, is part of Pro and included in the 14-day trial.</p></div>
+  <div class="callout"><p>The MCP server ships inside the app at <code>{bin}</code>, so Lagsmith needs to be in your Applications folder. {SITE.beta ? 'Automation, including MCP, is free during the beta.' : 'Automation, including MCP, is part of Pro and included in the 14-day trial.'}</p></div>
 
   <h2>Claude Code</h2>
   <p>Run this once in Terminal:</p>

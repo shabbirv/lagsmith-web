@@ -19,8 +19,10 @@ const faq = [
   { q: 'Do I need to install a certificate or change proxy settings?', a: 'No. Lagsmith sees the requests of simulator apps without certificates or proxy settings, and everything stays on your Mac.' },
   { q: 'What does Lagsmith install?', a: 'A network extension. macOS asks you to allow it once in System Settings. <a href="/docs/getting-started">See getting started</a>.' },
   { q: 'Which Macs does it run on?', a: `${SITE.minMacOS}, on Apple silicon and Intel.` },
-  { q: 'Is there a free version?', a: 'Yes. Every install starts with a 14-day Pro trial with no account or card. After that, the free version keeps working: watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
-  { q: 'Does Lagsmith collect any data?', a: 'No. Everything runs locally, there is no account, and the app has no analytics.' },
+  SITE.beta
+    ? { q: 'Is Lagsmith free?', a: `Yes, during the beta, with everything unlocked and no account or card. ${SITE.betaPromise} <a href="/pricing">About the beta</a>.` }
+    : { q: 'Is there a free version?', a: 'Yes. Every install starts with a 14-day Pro trial with no account or card. After that, the free version keeps working: watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
+  { q: 'Does Lagsmith collect any data?', a: 'Your traffic never leaves your Mac: throttling, request monitoring and automation all run locally, with no account. The app sends anonymous usage statistics, such as which features are used, and never hosts, URLs or request contents. <a href="/privacy">Privacy</a>.' },
 ];
 
 // The rest of what it does, one line each, linking to the detail.
@@ -48,7 +50,7 @@ const features = [
           <DownloadButton />
           <a class="btn btn-secondary" href="/network-link-conditioner-alternative">How it compares</a>
         </div>
-        <p class="hero-note"><strong>Free download.</strong> 14-day Pro trial, no account. {SITE.minMacOS}.</p>
+        <p class="hero-note">{SITE.beta ? <><strong>Free during the beta.</strong> Everything unlocked, no account.</> : <><strong>Free download.</strong> 14-day Pro trial, no account.</>} {SITE.minMacOS}.</p>
       </div>
       <div class="mock-wide"><AppMock /></div>
     </div>
@@ -108,6 +110,18 @@ const features = [
 
   <section class="section">
     <div class="wrap">
+      {SITE.beta ? <>
+      <h2 style="margin-top: 0">Free during the beta</h2>
+      <p>Every feature is unlocked: every preset, Airplane Mode and failure modes, failing and mocking endpoints, UI tests, the command line and MCP for AI agents. No account, no trial, no licence key.</p>
+      <p><strong>{SITE.betaPromise}</strong></p>
+      <p><a href="/pricing">About the beta</a></p>
+      </> : <>
+      {SITE.beta ? <>
+      <h2 style="margin-top: 0">Free during the beta</h2>
+      <p>Every feature is unlocked: every preset, Airplane Mode and failure modes, failing and mocking endpoints, UI tests, the command line and MCP for AI agents. No account, no trial, no licence key.</p>
+      <p><strong>{SITE.betaPromise}</strong></p>
+      <p><a href="/pricing">About the beta</a></p>
+      </> : <>
       <h2 style="margin-top: 0">Pricing</h2>
       <div class="plans">
         <div class="plan">
@@ -131,6 +145,7 @@ const features = [
         </div>
       </div>
       <p><a href="/pricing">See pricing</a></p>
+      </>}
     </div>
   </section>
 

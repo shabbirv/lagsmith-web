@@ -23,7 +23,9 @@ export const appSchema = () => ({
   image: `${SITE.url}/icon-512.png`,
   ...(SITE.downloadUrl ? { downloadUrl: SITE.downloadUrl } : {}),
   publisher: { '@id': `${SITE.url}/#organization` },
-  offers: [
+  offers: SITE.beta ? [
+    { '@type': 'Offer', name: 'Lagsmith beta', price: '0', priceCurrency: SITE.price.currency, description: 'Free during the beta, with everything unlocked' },
+  ] : [
     { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: SITE.price.currency, description: 'Free version with a 14-day Pro trial' },
     { '@type': 'Offer', name: 'Lagsmith Pro', price: String(currentPrice().amount), priceCurrency: SITE.price.currency, description: 'One-time purchase with a year of updates' },
   ],

@@ -5,13 +5,16 @@ import Cta from '../components/Cta.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import AgentTerminal from '../components/AgentTerminal.astro';
+import { SITE } from '../config';
 import { appSchema, faqSchema } from '../lib';
 
 const faq = [
   { q: 'Which AI agents does Lagsmith work with?', a: 'Any agent that supports MCP, including Claude Code, Cursor, Codex, Claude Desktop and Windsurf.' },
   { q: 'Will throttling the app slow down my agent?', a: 'No. Lagsmith only slows down the app under test. The agent’s own connection stays at full speed.' },
   { q: 'Does the MCP server need a separate install?', a: 'No. It is built into the Lagsmith app.' },
-  { q: 'Is the MCP server included in the free version?', a: 'Automation, including MCP for AI agents, is part of Pro. Every install starts with a 14-day Pro trial.' },
+  SITE.beta
+    ? { q: 'Is the MCP server free?', a: `Yes. Lagsmith is free during the beta, with everything unlocked, including MCP for AI agents. ${SITE.betaPromise}` }
+    : { q: 'Is the MCP server included in the free version?', a: 'Automation, including MCP for AI agents, is part of Pro. Every install starts with a 14-day Pro trial.' },
 ];
 
 const tools = [

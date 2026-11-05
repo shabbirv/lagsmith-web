@@ -6,18 +6,19 @@ const seller = reseller();
 const { legal } = SITE;
 const updated = 'October 14, 2026';
 ---
-<Base title="Privacy" description="Lagsmith runs locally, has no account and no analytics in the app. What we collect when you buy Pro or visit lagsmith.com." breadcrumbs={[{ name: 'Privacy', href: '/privacy' }]}>
+<Base title="Privacy" description="Lagsmith runs locally with no account, and your traffic never leaves your Mac. The anonymous usage statistics the app sends, and what we collect when you buy Pro or visit lagsmith.com." breadcrumbs={[{ name: 'Privacy', href: '/privacy' }]}>
   <section class="page-head">
     <div class="wrap narrow">
       <h1>Privacy</h1>
       <p class="muted">Last updated {updated}</p>
-      <p class="lead">Lagsmith runs on your Mac. It has no account and no analytics, and the network traffic it shows you never leaves your Mac.</p>
+      <p class="lead">Lagsmith runs on your Mac with no account, and the network traffic it shows you never leaves your Mac. The app sends anonymous usage statistics so we know which features to improve.</p>
       <p>This policy explains what {legal.name} (“we”), based in {legal.location}, collects and why.</p>
 
       <h2>The app</h2>
       <ul>
-        <li><strong>No account, no analytics, no tracking.</strong> The app doesn’t send us usage data.</li>
-        <li><strong>Your traffic stays on your Mac.</strong> Requests, connections, headers and bodies that Lagsmith shows, slows down or mocks are processed locally and are never sent to us.</li>
+        <li><strong>No account.</strong> You don’t sign up or sign in to use Lagsmith.</li>
+        <li><strong>Anonymous usage statistics.</strong> The app tells us which features are used (for example adding an app, turning on Airplane Mode, mocking an endpoint or opening the Pro window), with the app version, macOS version and plan. For Mac apps you add, it sends their bundle ID (such as com.google.Chrome). For iOS Simulator apps it only says whether the app is one of Apple’s built-in apps or your own, never your app’s bundle ID. Each install is identified only by a random ID kept on your Mac. The statistics are processed by <a href="https://posthog.com" rel="noopener">PostHog</a> in the United States. To turn them off, run <code>defaults write com.shabbirv.Lagsmith ShareUsageStatistics -bool NO</code> in Terminal and restart Lagsmith.</li>
+        <li><strong>Your traffic stays on your Mac.</strong> Requests, connections, hosts, URLs, headers and bodies that Lagsmith shows, slows down or mocks are processed locally and are never sent to us or included in the usage statistics.</li>
         <li><strong>Licence keys are checked offline.</strong> Activating Pro doesn’t contact our servers.</li>
         <li><strong>Price check.</strong> The app may download a small file from lagsmith.com with the current Pro price. Like any web request, this reaches our web server (see below), but it doesn’t include anything that identifies you.</li>
       </ul>

@@ -10,8 +10,10 @@ const faq = [
   { q: 'Do I need certificates or proxy settings?', a: 'No.' },
   { q: 'Why does it need a network extension?', a: 'A network extension is how macOS lets an app control network traffic. macOS asks you to allow it once.' },
   { q: 'Which macOS versions are supported?', a: `${SITE.minMacOS}, on Apple silicon and Intel.` },
-  { q: 'Does Lagsmith send my data anywhere?', a: 'No. Everything runs locally, there is no account and the app has no analytics.' },
-  { q: 'What does the free version include?', a: 'Watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
+  { q: 'Does Lagsmith send my data anywhere?', a: 'Your traffic never leaves your Mac, and there is no account. The app sends anonymous usage statistics, such as which features are used, and never hosts, URLs or request contents. <a href="/privacy">Privacy</a>.' },
+  SITE.beta
+    ? { q: 'Is Lagsmith free?', a: `Yes, during the beta, with everything unlocked. ${SITE.betaPromise}` }
+    : { q: 'What does the free version include?', a: 'Watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
   { q: 'Can I use Lagsmith alongside Network Link Conditioner?', a: 'Yes, but if Network Link Conditioner is on it slows down the whole Mac, including apps Lagsmith leaves alone.' },
 ];
 ---

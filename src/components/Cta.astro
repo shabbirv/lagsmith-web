@@ -2,7 +2,9 @@
 import DownloadButton from './DownloadButton.astro';
 import { SITE } from '../config';
 interface Props { text?: string }
-const { text = `Free download with a 14-day Pro trial. No account, no card. ${SITE.minMacOS}.` } = Astro.props;
+const { text = SITE.beta
+  ? `Free during the beta, with everything unlocked. No account, no card. ${SITE.minMacOS}.`
+  : `Free download with a 14-day Pro trial. No account, no card. ${SITE.minMacOS}.` } = Astro.props;
 ---
 <section class="section">
   <div class="wrap cta">

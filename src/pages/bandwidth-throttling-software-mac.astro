@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const rows = [
+  ['Network Link Conditioner', 'The whole Mac', 'No', 'Free, from Apple'],
+  ['dnctl and pfctl', 'Traffic matching a rule (ports, addresses)', 'No', 'Free, built into macOS'],
+  ['Charles or Proxyman', 'Everything going through the proxy', 'No', 'Paid, with trials'],
+  ['Lagsmith', 'One Mac app, or one iOS Simulator app', 'Yes', 'Free version; Pro is a one-time purchase'],
+  ['Your router', 'A whole device on your network', 'No', 'Depends on the router'],
+];
+
+const dnctl = `# A pipe limited to 1 Mbit/s with 100 ms of delay
+sudo dnctl pipe 1 config bw 1Mbit/s delay 100
+
+# Send outgoing traffic through it
+echo "dummynet out proto {tcp, udp} from any to any pipe 1" | sudo pfctl -f -
+sudo pfctl -e
+
+# Undo: restore the default rules and remove the pipe
+sudo pfctl -f /etc/pf.conf
+sudo dnctl -q flush`;
+
+const faq = [
+  { q: 'Can I limit bandwidth for one app on a Mac?', a: 'Not with Apple’s tools: Network Link Conditioner slows down the whole Mac, and dnctl and pfctl match ports and addresses, not apps. Lagsmith limits bandwidth per app. See <a href="/throttle-app-bandwidth-mac">throttle one Mac app</a>.' },
+  { q: 'Is there a NetLimiter for Mac?', a: 'NetLimiter is Windows only. On a Mac, Lagsmith sets download and upload limits per app.' },
+  { q: 'Does throttling also slow down the iOS Simulator?', a: 'Network Link Conditioner and dnctl slow down the simulator along with the rest of the Mac. Lagsmith can slow down one simulator app, or one app on one simulator device.' },
+  { q: 'How do I stop throttling?', a: 'In Network Link Conditioner, switch it off in System Settings. With dnctl, run <code>sudo pfctl -f /etc/pf.conf</code> and <code>sudo dnctl -q flush</code>. In Lagsmith, remove the app or choose No Throttling.' },
+];
+---
+<Base
+  title="Bandwidth throttling software for Mac: 5 ways to limit speed"
+  description="How to throttle bandwidth on a Mac: Network Link Conditioner, the built-in dnctl and pfctl, Charles and Proxyman, per-app throttling with Lagsmith, and your router. What each one limits."
+  breadcrumbs={[{ name: 'Bandwidth throttling software for Mac', href: '/bandwidth-throttling-software-mac' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Bandwidth throttling software for Mac</h1>
+      <p class="lead">People throttle bandwidth on a Mac for two reasons: to test how an app behaves on a slow connection, or to stop one app from taking the whole connection. Most tools can only slow down the whole Mac. Here’s what’s available, and what each one actually limits.</p>
+    </div>
+  </section>
+  <section class="section" style="padding-top: 24px">
+    <div class="wrap">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>What it slows down</th><th>Per app</th><th>Price</th></tr></thead>
+          <tbody>{rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="wrap narrow">
+      <h2>1. Network Link Conditioner</h2>
+      <p>Apple’s free tool, a System Settings pane that comes in the Additional Tools for Xcode download. Pick a profile (3G, Edge, LTE, Very Bad Network) or make your own with download and upload bandwidth, delay and packet loss. It slows down everything on the Mac at once. See <a href="/network-link-conditioner">how to download and use it</a>.</p>
+
+      <h2>2. dnctl and pfctl, built into macOS</h2>
+      <p>macOS includes the dummynet traffic shaper. You create a pipe with a bandwidth and delay, then send traffic to it with a packet filter rule:</p>
+      <CodeBlock code={dnctl} />
+      <p>It’s free and precise, and you can narrow the rule to some ports or addresses. But it can’t pick an app, it’s easy to leave running by mistake, and every change means editing rules by hand.</p>
+
+      <h2>3. Charles Proxy or Proxyman</h2>
+      <p>Both debugging proxies have a throttle setting. It applies to everything that goes through the proxy, which is usually every app that follows the system proxy settings, including simulator apps. Handy if you already use one, but you can’t slow down just one app, and apps that ignore the proxy settings aren’t slowed at all. See <a href="/charles-proxy-alternatives">Charles Proxy alternatives</a>.</p>
+
+      <h2>4. Lagsmith: throttle one app</h2>
+      <p>Lagsmith slows down one app at a time: a Mac app like Safari or Slack, or a single app in a booted iOS Simulator. Everything else on the Mac stays at full speed.</p>
+      <ul>
+        <li>Presets (Edge, 3G, DSL, LTE, Wi-Fi, Very Bad Network, 100% Loss) or your own download and upload bandwidth, latency, jitter and packet loss.</li>
+        <li>Conditions that change over time, like a train going through tunnels, instead of one fixed speed.</li>
+        <li>Limit a rule to some hosts: only <code>api.example.com</code>, or everything except a CDN.</li>
+        <li>Not just slow: <a href="/simulate-airplane-mode-ios-simulator">Airplane Mode</a>, refused connections and time-outs for one app.</li>
+        <li>A command line tool, a UI test helper and an MCP server, so tests and AI agents can set the network.</li>
+      </ul>
+      <p>It’s built for developers and testers, and it works just as well when you only want one app to stop hogging the connection.</p>
+      <div class="actions"><DownloadButton /></div>
+
+      <h2>5. Your router</h2>
+      <p>Many routers have quality-of-service settings or per-device limits. That slows down a whole device, such as your Mac or a test iPhone, not an app, and changing it usually means a trip to the router’s admin page.</p>
+
+      <h2>Which should you use?</h2>
+      <ul>
+        <li><strong>Test an app on a slow network without slowing down your Mac:</strong> Lagsmith.</li>
+        <li><strong>Quickly slow down the whole Mac:</strong> Network Link Conditioner.</li>
+        <li><strong>Free, scripted limits by port or address:</strong> dnctl and pfctl.</li>
+        <li><strong>Limit a whole device on your network:</strong> your router.</li>
+      </ul>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

@@ -2,39 +2,81 @@
 import Base from '../layouts/Base.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
+import CodeBlock from '../components/CodeBlock.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import { appSchema, faqSchema } from '../lib';
 
+const ways = [
+  ['Turn off the Mac’s Wi-Fi', 'Offline: requests fail and NWPathMonitor reports no network', 'Your whole Mac goes offline: browser, Slack, Xcode, your AI agent'],
+  ['Network Link Conditioner, 100% Loss', 'Requests hang until they time out; NWPathMonitor still reports a network', 'Slows down the whole Mac'],
+  ['xcrun simctl status_bar', 'Nothing. It only changes the status bar icons', 'None, but it doesn’t test anything'],
+  ['Lagsmith Airplane Mode', 'Offline like a real device, for that one app', 'None. Everything else stays online'],
+];
+
 const faq = [
-  { q: 'Does the iOS Simulator have Airplane Mode?', a: 'Not a working one. The simulator shares the Mac’s network, so the usual workaround is turning off the Mac’s Wi-Fi. Lagsmith puts a single simulator app in Airplane Mode instead.' },
-  { q: 'Will NWPathMonitor report no network?', a: 'Yes, for simulator apps launched with request monitoring. NWPathMonitor and SCNetworkReachability (used by Alamofire and Reachability.swift) report no network, like on a real device.' },
-  { q: 'What error do requests fail with?', a: 'URLSession requests fail with “The Internet connection appears to be offline”, the same error a real device gives in Airplane Mode.' },
+  { q: 'Does the iOS Simulator have Airplane Mode?', a: 'No. The Settings app in the iOS Simulator has no Airplane Mode switch, and the simulator shares the Mac’s network. The usual workaround is turning off the Mac’s Wi-Fi. Lagsmith puts a single simulator app in Airplane Mode instead.' },
+  { q: 'Why does my app still think it’s online with Network Link Conditioner’s 100% Loss profile?', a: 'Because the network interface is still up. Packet loss makes requests hang until they time out, but NWPathMonitor and SCNetworkReachability only check that a route exists, and it does.' },
+  { q: 'Does simctl status_bar turn off the network?', a: 'No. <code>xcrun simctl status_bar</code> only overrides the status bar icons, for screenshots. The app’s network is unchanged.' },
+  { q: 'Will NWPathMonitor report no network with Lagsmith?', a: 'Yes, for simulator apps launched with request monitoring. NWPathMonitor and SCNetworkReachability (used by Alamofire and Reachability.swift) report no network, like on a real device.' },
+  { q: 'What error do requests fail with?', a: 'URLSession requests fail with “The Internet connection appears to be offline” (NSURLErrorNotConnectedToInternet, −1009), the same error a real device gives in Airplane Mode.' },
   { q: 'Can I simulate a flaky connection instead of fully offline?', a: 'Yes. Lagsmith can refuse a percentage of connections, time out requests, drop connections after N seconds, or go offline and back repeatedly.' },
 ];
 ---
 <Base
-  title="Simulate Airplane Mode and offline in the iOS Simulator"
-  description="Put one iOS Simulator app in Airplane Mode. Requests fail like on a real device and NWPathMonitor and SCNetworkReachability report no network, without turning off your Mac’s Wi-Fi."
+  title="How to turn on Airplane Mode in the iOS Simulator"
+  description="The iOS Simulator has no Airplane Mode switch. Four ways to test your app offline in the simulator, what each one really does, and which makes NWPathMonitor report no network."
   breadcrumbs={[{ name: 'Airplane Mode in the iOS Simulator', href: '/simulate-airplane-mode-ios-simulator' }]}
   jsonLd={[appSchema(), faqSchema(faq)]}
 >
   <section class="page-head">
     <div class="wrap narrow">
-      <h1>Airplane Mode for the iOS Simulator</h1>
-      <p class="lead">To simulate offline in the iOS Simulator, most developers turn off their Mac’s Wi-Fi, and lose everything else with it. Lagsmith puts just one simulator app in Airplane Mode, and it behaves like a real device.</p>
+      <h1>Airplane Mode in the iOS Simulator</h1>
+      <p class="lead">The iOS Simulator has no Airplane Mode switch. It uses your Mac’s network, so to test offline you have to cut the network somewhere else. Here are four ways to do it, and what your app actually sees with each one.</p>
       <div class="actions"><DownloadButton /></div>
     </div>
   </section>
   <section class="section">
+    <div class="wrap">
+      <div class="table-wrap">
+        <table class="table-compare">
+          <thead><tr><th>Method</th><th>What your app sees</th><th>Side effects</th></tr></thead>
+          <tbody>{ways.map(([k, a, b]) => <tr><td>{k}</td><td>{a}</td><td>{b}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </div>
     <div class="wrap narrow">
-      <h2 style="margin-top: 0">Offline that behaves like a real device</h2>
-      <p>For simulator apps launched with request monitoring, Lagsmith’s Airplane Mode makes:</p>
+      <h2>1. Turn off your Mac’s Wi-Fi</h2>
+      <p>The closest thing to Airplane Mode with Apple’s tools. The simulator loses its network, URLSession requests fail with <em>“The Internet connection appears to be offline”</em>, and <code>NWPathMonitor</code> reports the path as unsatisfied.</p>
+      <p>The catch: your whole Mac is offline too. You can’t read docs, Xcode can’t download anything, and an AI coding agent running the test loses its own connection. If the Mac also has Ethernet or a tethered iPhone, the simulator keeps using those, so disconnect them as well.</p>
+
+      <h2>2. Network Link Conditioner’s 100% Loss profile</h2>
+      <p>If you have <a href="/network-link-conditioner">Network Link Conditioner</a> installed, its 100% Loss profile drops every packet. That isn’t the same as being offline:</p>
+      <ul>
+        <li>Requests don’t fail straight away. They hang until they time out, 60 seconds by default.</li>
+        <li><code>NWPathMonitor</code> and <code>SCNetworkReachability</code> still report a network, because the interface is up.</li>
+      </ul>
+      <p>That’s a useful test in its own right (a network that looks alive but isn’t, like a captive portal), but it won’t show your app’s “You’re offline” screen. And it slows down the whole Mac.</p>
+
+      <h2>3. <code>simctl status_bar</code> is only for screenshots</h2>
+      <CodeBlock code="xcrun simctl status_bar booted override --dataNetwork hide --wifiBars 0" />
+      <p>This turns up a lot in search results, but it only changes the status bar icons. The app’s network is untouched. Use it for App Store screenshots, not offline testing.</p>
+
+      <h2>4. Airplane Mode for one app with Lagsmith</h2>
+      <p>Lagsmith puts a single simulator app in Airplane Mode while the rest of your Mac stays online. For simulator apps launched with request monitoring, it behaves like a real device:</p>
       <ul>
         <li>requests fail with <em>“The Internet connection appears to be offline”</em>,</li>
-        <li><code>NWPathMonitor</code> report no network, so you can test your path-update handling in the simulator,</li>
-        <li><code>SCNetworkReachability</code> report no network, so Alamofire’s <code>NetworkReachabilityManager</code> and Reachability.swift see it too.</li>
+        <li><code>NWPathMonitor</code> reports no network, so you can test your path-update handling in the simulator,</li>
+        <li><code>SCNetworkReachability</code> reports no network, so Alamofire’s <code>NetworkReachabilityManager</code> and Reachability.swift see it too.</li>
       </ul>
-      <p>Everything else on your Mac, including Xcode and your other simulator apps, stays online.</p>
+      <p>Turn it off and your app sees the network come back, so you can test reconnecting too. Everything else on your Mac, including Xcode and your other simulator apps, stays online.</p>
+
+      <h2>What to test while offline</h2>
+      <ul>
+        <li><strong>Launching offline.</strong> Does the first screen show cached content or a useful empty state, or a spinner that never stops?</li>
+        <li><strong>Going offline mid-request.</strong> Does the request fail cleanly and offer a retry?</li>
+        <li><strong>Coming back online.</strong> Does the app notice and refresh on its own, or does the user have to pull to refresh?</li>
+        <li><strong>Saving while offline.</strong> Is a post or edit kept and sent later, or lost?</li>
+      </ul>
 
       <h2>Test the in-between states too</h2>
       <p>Real networks rarely go cleanly offline. Lagsmith can also:</p>
@@ -43,7 +85,8 @@ const faq = [
         <li>time out every request,</li>
         <li>drop connections after a number of seconds,</li>
         <li>go offline and come back repeatedly, to test retries and reconnection,</li>
-        <li>take a <a href="/mock-api-ios-simulator">single endpoint</a> offline while the rest works.</li>
+        <li>take a <a href="/mock-api-ios-simulator">single endpoint</a> offline while the rest works,</li>
+        <li>make the network <a href="/simulate-slow-network">slow</a> instead of gone.</li>
       </ul>
       <h2>Automate offline tests</h2>
       <p>Set Airplane Mode from an XCTest UI test before launching the app, or let an AI agent do it through the MCP server. <a href="/docs/automation">Automation docs</a> · <a href="/ai-agents-network-testing">AI agents</a>.</p>

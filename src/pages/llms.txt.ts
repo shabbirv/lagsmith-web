@@ -16,10 +16,12 @@ const sections: [string, [string, string, string][]][] = [
     ['/network-link-conditioner', 'Network Link Conditioner guide', 'How to download, install and use Apple’s Network Link Conditioner on macOS and iPhone, its presets in numbers, and its limits.'],
     ['/vs/charles-proxy', 'Lagsmith vs. Charles Proxy', 'Per-app throttling without a proxy or certificates, compared with Charles Proxy’s throttling.'],
     ['/vs/proxyman', 'Lagsmith vs. Proxyman', 'Per-app throttling without a proxy or certificates, compared with Proxyman.'],
+    ['/charles-proxy-alternatives', 'Charles Proxy alternatives', 'Proxyman, mitmproxy, HTTP Toolkit, Fiddler Everywhere, Wireshark and Lagsmith compared, and which to pick.'],
+    ['/bandwidth-throttling-software-mac', 'Bandwidth throttling software for Mac', 'Network Link Conditioner, dnctl and pfctl, proxy throttling, per-app throttling with Lagsmith, and routers.'],
   ]],
   ['Use cases', [
     ['/throttle-ios-simulator', 'Throttle the iOS Simulator', 'Slow down one simulator app, or one app on one simulator device.'],
-    ['/simulate-airplane-mode-ios-simulator', 'Airplane Mode in the iOS Simulator', 'Offline for one simulator app, with NWPathMonitor and SCNetworkReachability reporting no network.'],
+    ['/simulate-airplane-mode-ios-simulator', 'Airplane Mode in the iOS Simulator', 'The simulator has no Airplane Mode switch: four ways to test offline, and Airplane Mode for one simulator app with NWPathMonitor and SCNetworkReachability reporting no network.'],
     ['/throttle-app-bandwidth-mac', 'Throttle one Mac app', 'Per-app bandwidth, latency and packet loss on macOS.'],
     ['/simulate-slow-network', 'Simulate a slow network', '3G, Edge, high latency, jitter and packet loss for one app.'],
     ['/mock-api-ios-simulator', 'Mock or fail an API endpoint', 'Fail, delay or mock one endpoint in a simulator app without a proxy.'],

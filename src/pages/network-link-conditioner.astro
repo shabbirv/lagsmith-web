@@ -8,7 +8,7 @@ const installSteps = [
   { name: 'Find your Xcode version', text: 'Open Xcode and choose Xcode › About Xcode to see the version number.' },
   { name: 'Download Additional Tools for Xcode', text: 'Sign in at developer.apple.com/download/all with your Apple ID, search for “Additional Tools for Xcode”, and download the version that matches your Xcode.' },
   { name: 'Open the disk image', text: 'Open the downloaded .dmg file and then the Hardware folder.' },
-  { name: 'Install the preference pane', text: 'Double-click Network Link Conditioner.prefPane and confirm the installation. It appears in System Settings.' },
+  { name: 'Install the preference pane', text: 'Double-click Network Link Conditioner.prefPane and confirm the installation. It appears at the bottom of the System Settings sidebar.' },
   { name: 'Turn it on', text: 'Open Network Link Conditioner in System Settings, choose a profile such as 3G, and switch it on. It now applies to the whole Mac.' },
 ];
 
@@ -24,6 +24,8 @@ const presets = [
 
 const faq = [
   { q: 'Where do I download Network Link Conditioner?', a: 'It is part of “Additional Tools for Xcode”, a free download at developer.apple.com/download/all. Sign in with your Apple ID and pick the version that matches your Xcode.' },
+  { q: 'Do I need a paid Apple Developer account to download it?', a: 'No. A free Apple ID is enough to sign in to developer.apple.com and download Additional Tools for Xcode.' },
+  { q: 'Is Network Link Conditioner included with Xcode?', a: 'No. Since Xcode 4.3 it has been part of the separate Additional Tools for Xcode download.' },
   { q: 'Does Network Link Conditioner affect the iOS Simulator?', a: 'Yes, because it slows down the whole Mac. The simulator, and every app in it, uses the Mac’s network, so they are all slowed down together, along with everything else on the Mac.' },
   { q: 'Can I throttle only one app with Network Link Conditioner?', a: 'No. It applies to the whole Mac (or the whole iPhone). To slow down one app at a time, use a per-app tool such as <a href="/network-link-conditioner-alternative">Lagsmith</a>.' },
   { q: 'How do I enable Network Link Conditioner on an iPhone?', a: 'Connect the iPhone to a Mac with Xcode and turn on Developer Mode. Then open Settings › Developer › Network Link Conditioner, choose a profile and switch it on.' },
@@ -31,8 +33,8 @@ const faq = [
 ];
 ---
 <Base
-  title="Network Link Conditioner: how to download, install and use it on Mac"
-  description="How to download and install Apple’s Network Link Conditioner on macOS, enable it on iPhone, what each preset means in numbers, and its limits."
+  title="Download Network Link Conditioner for Mac (Additional Tools for Xcode)"
+  description="Network Link Conditioner isn’t in Xcode. How to download it from Apple’s Additional Tools for Xcode, install it on macOS, turn it on for iPhone, fix it when it doesn’t show up, and what each preset means."
   breadcrumbs={[{ name: 'Network Link Conditioner guide', href: '/network-link-conditioner' }]}
   jsonLd={[
     howToSchema('How to install Network Link Conditioner on a Mac', 'Install Apple’s Network Link Conditioner from Additional Tools for Xcode.', installSteps),
@@ -57,6 +59,17 @@ const faq = [
         {installSteps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}
       </ol>
       <div class="callout"><p>Use the Additional Tools version that matches your Xcode. Mismatched versions are the most common reason it fails to install or doesn’t take effect.</p></div>
+
+      <h2>What’s in Additional Tools for Xcode</h2>
+      <p>Additional Tools for Xcode is a disk image of extra developer utilities Apple doesn’t ship inside Xcode. Network Link Conditioner is in its Hardware folder; the other folders hold tools for accessibility, audio and graphics. For network testing, the preference pane is the only part you need, and you can install it without Xcode.</p>
+
+      <h2>Network Link Conditioner not showing up?</h2>
+      <ul>
+        <li><strong>Scroll to the bottom of System Settings.</strong> Panes from outside Apple’s own set are listed below everything else in the sidebar.</li>
+        <li><strong>Install a recent version.</strong> Very old Additional Tools downloads may not load on current macOS; get the one that matches your Xcode.</li>
+        <li><strong>The switch won’t stay on, or it does nothing.</strong> Control-click Network Link Conditioner in System Settings, remove it, and install it again from a current download. Then restart the app you’re testing, because changes apply to new connections.</li>
+        <li><strong>On an iPhone,</strong> the Developer menu only appears once the phone has been connected to Xcode with Developer Mode on.</li>
+      </ul>
 
       <h2>How to use Network Link Conditioner on an iPhone</h2>
       <ol class="steps">

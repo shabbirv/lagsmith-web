@@ -1,0 +1,95 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema } from '../lib';
+
+const rows = [
+  ['Charles Proxy', 'HTTP proxy', 'Yes', 'Everything through the proxy', 'Long-time users: breakpoints, rewrite and map rules'],
+  ['Proxyman', 'HTTP proxy', 'Yes', 'Everything through the proxy', 'A native Mac app for iOS devices and the simulator'],
+  ['mitmproxy', 'HTTP proxy', 'Yes', 'Through scripts', 'Free, open source, scripting in Python, CI'],
+  ['HTTP Toolkit', 'HTTP proxy', 'Yes, set up for you', 'Not the focus', 'Free, open source, one-click interception'],
+  ['Fiddler Everywhere', 'HTTP proxy', 'Yes', 'Yes', 'Teams on Mac, Windows and Linux'],
+  ['Wireshark', 'Packet capture', 'Can’t decrypt without keys', 'No', 'Problems below HTTP: DNS, TCP, TLS'],
+  ['Lagsmith', 'Per-app network extension', 'No, for simulator apps', 'One app, or one simulator app', 'Slow, offline and failing networks; simulator requests without a certificate'],
+];
+
+const faq = [
+  { q: 'Is there a free alternative to Charles Proxy?', a: 'Yes. mitmproxy and HTTP Toolkit are open source. Proxyman and Lagsmith have free versions.' },
+  { q: 'What is the best Charles Proxy alternative for Mac?', a: 'For inspecting and rewriting requests, Proxyman is the closest native Mac replacement, and mitmproxy if you want free and scriptable. For testing slow, offline and failing networks for one app, Lagsmith.' },
+  { q: 'Do these work with the iOS Simulator?', a: 'The proxies do, once you install and trust their root certificate in each simulator. Lagsmith sees simulator requests without a certificate or proxy settings.' },
+  { q: 'Can Charles Proxy throttle just one app?', a: 'No. Charles throttles everything that goes through the proxy. Lagsmith throttles one app at a time, including one app in the iOS Simulator.' },
+];
+---
+<Base
+  title="Charles Proxy alternatives for Mac and iOS developers"
+  description="An honest comparison of Charles Proxy alternatives for Mac: Proxyman, mitmproxy, HTTP Toolkit, Fiddler Everywhere, Wireshark and Lagsmith. What each is best at, and which to pick."
+  breadcrumbs={[{ name: 'Compare', href: '/network-link-conditioner-alternative' }, { name: 'Charles Proxy alternatives', href: '/charles-proxy-alternatives' }]}
+  jsonLd={[appSchema(), faqSchema(faq)]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Charles Proxy alternatives for Mac</h1>
+      <p class="lead">Charles has been the go-to debugging proxy for iOS and Mac developers for years, and it still works. People look for alternatives when they want a more native Mac app, something free and open source, or something that needs no proxy and no certificates at all. Here’s how the main options compare.</p>
+    </div>
+  </section>
+  <section class="section" style="padding-top: 24px">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Quick picks</h2>
+      <ul>
+        <li><strong>Closest replacement, native on Mac:</strong> Proxyman</li>
+        <li><strong>Free, open source and scriptable:</strong> mitmproxy</li>
+        <li><strong>Free and open source, with a friendly interface:</strong> HTTP Toolkit</li>
+        <li><strong>One tool for Mac, Windows and Linux:</strong> Fiddler Everywhere</li>
+        <li><strong>Packets rather than HTTP:</strong> Wireshark</li>
+        <li><strong>Slow, offline and failing networks for one app:</strong> Lagsmith</li>
+      </ul>
+    </div>
+    <div class="wrap">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>How it sees traffic</th><th>Certificate for HTTPS</th><th>Throttling</th><th>Best for</th></tr></thead>
+          <tbody>{rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="wrap narrow">
+      <h2>Proxyman</h2>
+      <p>A native macOS app with a fast, modern interface. It covers what most people used Charles for: inspecting requests, breakpoints, map local and map remote, scripting and throttling, with helpers that set up its certificate in the iOS Simulator and on devices. If you want “Charles, but it feels like a Mac app”, start here. See also <a href="/vs/proxyman">Lagsmith vs. Proxyman</a>.</p>
+
+      <h2>mitmproxy</h2>
+      <p>Free and open source, with a terminal interface (<code>mitmproxy</code>), a web interface (<code>mitmweb</code>) and a command line tool (<code>mitmdump</code>). Its strength is Python add-ons: you can rewrite, record and replay traffic in code, which suits automated tests and CI. Less polished if you mostly click around.</p>
+
+      <h2>HTTP Toolkit</h2>
+      <p>Open source, with a free version and a paid Pro version. It’s good at one-click interception: it can launch a browser, a terminal or an Android device already set up to go through it. Great for quick debugging, less focused on iOS.</p>
+
+      <h2>Fiddler Everywhere</h2>
+      <p>The cross-platform successor to the classic Windows Fiddler. A reasonable choice when a team is split across Mac and Windows and wants one tool. Paid, with a trial.</p>
+
+      <h2>Wireshark</h2>
+      <p>Not a proxy: it captures packets. It’s the tool for problems below HTTP, like DNS, TCP resets and TLS handshakes. It can’t show HTTPS request bodies unless you give it the session keys.</p>
+
+      <h2>Lagsmith</h2>
+      <p>Lagsmith isn’t a general debugging proxy. It answers a different question: how does my app behave on a bad network? It works per app, through a macOS network extension rather than a proxy:</p>
+      <ul>
+        <li>Slow down one Mac app or <a href="/throttle-ios-simulator">one iOS Simulator app</a> (3G, Edge, high latency, packet loss, or conditions that change over time) while the rest of your Mac stays at full speed.</li>
+        <li>Put one app in <a href="/simulate-airplane-mode-ios-simulator">Airplane Mode</a>, refuse its connections, time out its requests, or <a href="/mock-api-ios-simulator">fail or mock one endpoint</a>.</li>
+        <li>See every request a simulator app makes (headers, bodies, timing, a JSON tree) without installing a certificate or changing proxy settings, and export them as HAR to open in Charles or Proxyman.</li>
+        <li>Drive it all from UI tests, the command line, or an <a href="/ai-agents-network-testing">AI coding agent over MCP</a>.</li>
+      </ul>
+      <p>Plenty of developers use both: Proxyman or Charles for deep request debugging, and Lagsmith for network conditions and failures.</p>
+      <div class="actions"><DownloadButton /></div>
+
+      <h2>Which should you pick?</h2>
+      <ul>
+        <li>You mostly <strong>inspect and rewrite requests</strong>: Proxyman, or mitmproxy if you want free and scriptable.</li>
+        <li>You need to <strong>test slow, offline and failing networks</strong> for one app without slowing down your Mac: Lagsmith.</li>
+        <li>You’re debugging <strong>below HTTP</strong>: Wireshark.</li>
+      </ul>
+      <p>If throttling is the main thing you use Charles for, see <a href="/vs/charles-proxy">Lagsmith vs. Charles Proxy</a> side by side.</p>
+      <Faq items={faq} />
+    </div>
+  </section>
+  <Cta />
+</Base>

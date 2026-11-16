@@ -14,6 +14,7 @@ const faq = [
   SITE.beta
     ? { q: 'Is Lagsmith free?', a: `Yes, during the beta, with everything unlocked. ${SITE.betaPromise}` }
     : { q: 'What does the free version include?', a: 'Watch any app, see its last 50 requests and its connections, and slow it down with the Edge preset.' },
+  ...(SITE.beta ? [] : [{ q: 'I used Lagsmith during the beta. Do I have to pay?', a: `No. ${SITE.betaSupporters}` }]),
   { q: 'Can I use Lagsmith alongside Network Link Conditioner?', a: 'Yes, but if Network Link Conditioner is on it slows down the whole Mac, including apps Lagsmith leaves alone.' },
 ];
 ---

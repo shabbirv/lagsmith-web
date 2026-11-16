@@ -15,14 +15,12 @@ export const SITE = {
   // Free public beta: everything is unlocked in the app and there's no checkout. The pricing page,
   // /buy and the FAQs say so and make the early-user promise below. Set to false when paid plans
   // start; the plans, prices and checkout below then come back.
-  beta: true,
+  // The beta ran from Nov 5, 2026 (app 1.0.6) until paid plans started with app 1.0.7, which keeps
+  // Pro free on every Mac that used the beta.
+  beta: false,
   betaPromise: 'When paid plans start, everyone who used Lagsmith during the beta keeps Pro for free.',
-
-  // Free public beta: everything is unlocked in the app and there's no checkout. The pricing page,
-  // /buy and the FAQs say so and make the early-user promise below. Set to false when paid plans
-  // start; the plans, prices and checkout below then come back.
-  beta: true,
-  betaPromise: 'When paid plans start, everyone who used Lagsmith during the beta keeps Pro for free.',
+  // Shown once paid plans have started, for people who used the beta.
+  betaSupporters: 'If you used Lagsmith during the free beta, Pro is yours for free on that Mac. Update to the latest version and everything stays unlocked, with no licence key.',
 
   // Which payment provider /buy uses. Both are wired up in the licence service; the Terms,
   // Privacy and Refunds pages name whichever one is chosen here.
@@ -45,14 +43,16 @@ export const SITE = {
     launchDiscountId: 'dsc_01m4vs8pj79w08xhb40jvwdamg',
   },
 
-  // Pro is a one-time purchase that includes a year of updates.
-  // Launch pricing: set regularAmount and launchEnds (YYYY-MM-DD, last day of the offer) to show
-  // "$59 $39 launch price". After launchEnds the regular price is shown automatically on the next build.
+  // Pro is a one-time purchase that includes a year of updates. $39, with no launch offer: it must
+  // match the Stripe price in STRIPE_PRICE_ID on the server.
+  // Launch pricing, if ever wanted: set regularAmount and launchEnds (YYYY-MM-DD, last day of the
+  // offer) to show "$59 $39 launch price", plus STRIPE_LAUNCH_COUPON on the server for checkout.
+  // After launchEnds the regular price is shown automatically on the next build.
   price: {
     amount: 39,
     currency: 'USD',
-    regularAmount: 59 as number | null,
-    launchEnds: '2026-11-30' as string | null,
+    regularAmount: null as number | null,
+    launchEnds: null as string | null,
     launchReason: 'Launch price for early supporters.',
   },
 

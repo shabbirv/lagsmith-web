@@ -185,8 +185,23 @@ async function stripe(method, pathname, params) {
   return body;
 }
 
-// The launch coupon applies itself until it stops being valid (its redeem_by date). After that,
-// checkout accepts promotion codes instead.
+// The launch coupon applies itself while the website's launch offer runs and the coupon is still
+// valid. After that, checkout accepts promotion codes instead. The offer's last day comes from the
+// built site's pricing.json (SITE.price.launchEnds in src/config.ts), so checkout and the pricing
+// page switch to the regular price on the same day. The coupon itself has no end date.
+const PRICING_FILE = env.PRICING_FILE ?? new URL('../dist/pricing.json', import.meta.url);
+function launchOfferRunning(now = new Date()) {
+  let launchEnds;
+  try {
+    ({ launchEnds } = JSON.parse(readFileSync(PRICING_FILE, 'utf8')));
+  } catch (err) {
+    // Without the site's pricing, don't discount: STRIPE_PRICE_ID is the price the site shows.
+    log(`launch offer unknown (${err.message}); no launch discount`);
+    return false;
+  }
+  return Boolean(launchEnds) && now <= new Date(`${launchEnds}T23:59:59-08:00`);
+}
+
 let couponCache = { at: 0, valid: false };
 async function launchCouponValid() {
   if (!env.STRIPE_LAUNCH_COUPON) return false;
@@ -202,7 +217,7 @@ async function launchCouponValid() {
 }
 
 async function createCheckout() {
-  const launch = await launchCouponValid();
+  const launch = launchOfferRunning() && (await launchCouponValid());
   const session = await stripe('POST', '/checkout/sessions', {
     mode: 'payment',
     line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],

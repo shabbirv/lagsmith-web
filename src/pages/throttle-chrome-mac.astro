@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema, howToSchema } from '../lib';
+import { SITE } from '../config';
+
+const devtoolsSteps = [
+  { name: 'Open DevTools', text: 'Open your site in Chrome and press ⌥⌘I.' },
+  { name: 'Go to the Network panel', text: 'Click the Network tab at the top of DevTools.' },
+  { name: 'Pick a throttling preset', text: 'Open the throttling menu at the top of the panel (it says No throttling) and pick a slower preset, or Offline.' },
+  { name: 'Reload and keep DevTools open', text: 'Reload the page. Throttling only applies to this tab, and only while DevTools is open.' },
+];
+
+const lagsmithSteps = [
+  { name: 'Add Chrome', text: 'Click the Lagsmith menu bar icon and add Google Chrome.' },
+  { name: 'Pick a connection', text: 'Choose a preset like 3G, set your own bandwidth, latency and packet loss, or pick a failure like Airplane Mode.' },
+  { name: 'Reopen Chrome', text: 'Quit and reopen Chrome so it opens fresh connections. Connections it already had open keep their old speed.' },
+  { name: 'Load your site', text: 'Every tab and window is now on the slow connection. Switch presets or turn the rule off to compare.' },
+];
+
+const faq = [
+  { q: 'How do I simulate a slow connection in Chrome?', a: 'Open DevTools (⌥⌘I), go to the Network panel and choose a preset from the throttling menu. It applies to that tab while DevTools is open. To slow down the whole browser, use a tool that throttles Chrome’s own traffic, such as Lagsmith.' },
+  { q: 'Why doesn’t Chrome’s network throttling seem to work?', a: 'Check that DevTools is open on the tab you are testing (throttling stops when you close it), that you reloaded after picking a preset, and that Disable cache is ticked if files load from the cache instead of the network.' },
+  { q: 'Can I throttle Chrome without slowing down my whole Mac?', a: 'Yes. Network Link Conditioner slows down every app. Lagsmith slows down only the apps you choose, so Chrome can be on 3G while everything else runs at full speed.' },
+  { q: 'Can I simulate packet loss or a flaky connection in Chrome?', a: 'Lagsmith adds packet loss and jitter to Chrome’s real connections, and can refuse connections, time them out, drop them after a few seconds or take the network down and up repeatedly. <a href="/docs/failures">Failure modes</a>.' },
+  { q: 'Can I throttle just one website?', a: 'Yes. Limit a Lagsmith rule to some hosts, such as your API’s domain, and the rest of Chrome’s requests go at full speed. <a href="/docs/conditions">Host rules</a>.' },
+  { q: 'Does this work with Safari, Firefox, Arc or Edge?', a: 'Yes, any Mac browser. Safari and other WebKit apps do their networking in a shared system process, so to slow down all of Safari’s traffic also add <code>com.apple.WebKit.Networking</code>, which slows down every app that uses WebKit.' },
+  { q: 'Is it free?', a: SITE.beta
+    ? 'Lagsmith is free during the beta, with everything unlocked.'
+    : 'Lagsmith is a free download with a 14-day trial of everything. After the trial, the free version can still slow down any app with the Edge preset; Pro adds the other presets, custom speeds, failures and automation. <a href="/pricing">Pricing</a>.' },
+];
+---
+<Base
+  title="Throttle Chrome on Mac: slow 3G, offline and packet loss"
+  description="Test your website on a slow or broken connection: throttle Chrome with DevTools, or slow down the whole browser on your Mac while every other app stays at full speed."
+  breadcrumbs={[{ name: 'Throttle Chrome on Mac', href: '/throttle-chrome-mac' }]}
+  jsonLd={[
+    appSchema(),
+    howToSchema('How to throttle Chrome on a Mac with Lagsmith', 'Slow down every tab in Chrome while the rest of the Mac stays at full speed.', lagsmithSteps),
+    faqSchema(faq),
+  ]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Throttle Chrome on your Mac and test your site on a bad connection</h1>
+      <p class="lead">Your site feels instant on office Wi-Fi. To see it the way people on a train, a weak café signal or a phone hotspot do, slow Chrome down: with DevTools for a quick look, or the whole browser while the rest of your Mac stays at full speed.</p>
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 24px">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Two ways to slow Chrome down</h2>
+      <ul>
+        <li><strong>Inside Chrome, with DevTools.</strong> Chrome slows down the requests of the tab you are inspecting. Free, built in, good for a quick check.</li>
+        <li><strong>Outside Chrome, at the network.</strong> A tool between Chrome and the internet slows down Chrome’s real connections: every tab and window, and the browser’s own background work.</li>
+      </ul>
+      <p>Start with the first, and reach for the second when you need more realistic or more broken conditions.</p>
+
+      <h2>How to throttle Chrome with DevTools</h2>
+      <ol class="steps">
+        {devtoolsSteps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}
+      </ol>
+      <p>To make your own speed, choose <strong>Add…</strong> in the same menu and set download, upload and latency. The Performance panel can also slow down the CPU, which matters as much as the network on a cheap phone.</p>
+
+      <h2>Limits of DevTools throttling</h2>
+      <ul>
+        <li><strong>One tab at a time.</strong> Other tabs, windows and pop-ups run at full speed, and throttling stops when you close DevTools.</li>
+        <li><strong>Slow, but never broken.</strong> You get slower or offline. You don’t get connections that are refused, hang until they time out, drop halfway through a download, or come and go every few seconds, which is what real bad networks do.</li>
+        <li><strong>Simulated inside the browser.</strong> Chrome delays its own requests rather than slowing the connection underneath, so connection set-up and lost packets don’t behave as they do on a real slow link.</li>
+        <li><strong>Only from inside a test.</strong> Playwright and Puppeteer can set network conditions through Chrome, but only for Chromium and only from the test’s own code.</li>
+      </ul>
+
+      <h2>Throttle all of Chrome, and only Chrome</h2>
+      <p>Apple’s <a href="/network-link-conditioner">Network Link Conditioner</a> slows down Chrome’s real traffic, but for the whole Mac: Slack, your music, package downloads and the AI agent writing your tests crawl too. Proxies like Charles and Proxyman throttle what goes through them, which means pointing the browser at the proxy and installing a certificate for HTTPS.</p>
+      <p>Lagsmith slows down one app at a time. Pick Chrome and a connection, and every tab and window gets it while the rest of your Mac stays at full speed.</p>
+      <ul>
+        <li><strong>Presets in real numbers:</strong> Edge, 3G, DSL, LTE, WiFi, Very Bad Network and 100% Loss, or your own download, upload, latency, jitter and packet loss.</li>
+        <li><strong>Real failures:</strong> take Chrome offline, refuse some of its connections, time them out, cut them after a few seconds, or bring the network down and up again.</li>
+        <li><strong>Only your site, if you like:</strong> limit a rule to some hosts (<code>api.mysite.com</code>) or to everything except a CDN, so the page loads normally and only your API is slow.</li>
+        <li><strong>See the connections:</strong> each connection Chrome makes, with DNS lookups and TLS details.</li>
+        <li><strong>No proxy settings, no certificates.</strong> Lagsmith uses a macOS network extension that you allow once in System Settings.</li>
+      </ul>
+      <p>Chrome’s helper processes, where its networking actually happens, are included automatically.</p>
+
+      <h2>How to throttle Chrome with Lagsmith</h2>
+      <ol class="steps">
+        {lagsmithSteps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}
+      </ol>
+
+      <h2>Slow networks in Playwright, Cypress and CI</h2>
+      <p>The <code>lagsmith</code> command line tool sets the browser’s network before a test run and puts it back afterwards. Turn on <strong>Allow Automation</strong> in Lagsmith’s menu bar menu first.</p>
+      <CodeBlock label="Run the end-to-end tests on 3G" code={`lagsmith set --app com.google.Chrome --preset 3G
+npx playwright test
+lagsmith reset --app com.google.Chrome`} />
+      <CodeBlock label="Time out only your API" code="lagsmith set --app com.google.Chrome --hosts api.mysite.com --failure timeout" />
+      <p>Only the browser slows down, so the test runner, your dev server and any AI coding agent driving the tests stay at full speed. Agents like Claude Code, Cursor and Codex can also set the network themselves through Lagsmith’s <a href="/ai-agents-network-testing">MCP server</a>. <a href="/docs/automation">Automation docs</a>.</p>
+
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <Cta />
+</Base>

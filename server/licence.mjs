@@ -9,6 +9,7 @@
 //   GET  /api/licence?txn=…    licence key for a completed checkout (thank-you page);
 //                              txn is a Stripe Checkout Session (cs_…) or Paddle transaction (txn_…)
 //   POST /api/lost-key         {email}: re-send keys for an address
+//   POST /api/trial-reminder   {email, trialEnds}: from the app, one email shortly before the trial ends
 //
 // Configuration comes from the environment (systemd EnvironmentFile=/etc/lagsmith/*.env):
 //   STRIPE_SECRET_KEY, STRIPE_PRICE_ID, STRIPE_WEBHOOK_SECRET, STRIPE_LAUNCH_COUPON
@@ -30,6 +31,7 @@ const env = process.env;
 const PORT = Number(env.PORT ?? 8787);
 const DATA_DIR = env.DATA_DIR ?? '/var/lib/lagsmith';
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
+const REMINDERS_FILE = path.join(DATA_DIR, 'trial-reminders.json');
 const PADDLE_API = env.PADDLE_ENV === 'production' ? 'https://api.paddle.com' : 'https://sandbox-api.paddle.com';
 const SIGNATURE_TOLERANCE_S = 300;
 const SITE = 'https://lagsmith.com';
@@ -366,6 +368,85 @@ async function deliverPending() {
   }
 }
 
+// ---------- Trial reminders ----------
+//
+// The app offers, once during the trial, to email a reminder before the trial ends. That one email is
+// all the address is used for: it's deleted a week after the reminder goes out, or straight away if
+// the address buys Pro first.
+
+const REMIND_BEFORE_MS = 2 * 86_400_000;
+const KEEP_AFTER_SENT_MS = 7 * 86_400_000;
+let reminders = {};
+let writingReminders = Promise.resolve();
+
+async function loadReminders() {
+  try {
+    reminders = JSON.parse(await fs.readFile(REMINDERS_FILE, 'utf8'));
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+}
+
+function saveReminders() {
+  writingReminders = writingReminders.then(async () => {
+    const tmp = `${REMINDERS_FILE}.tmp`;
+    await fs.writeFile(tmp, JSON.stringify(reminders, null, 2), { mode: 0o600 });
+    await fs.rename(tmp, REMINDERS_FILE);
+  });
+  return writingReminders;
+}
+
+function reminderEmail(trialEnds) {
+  const day = new Date(trialEnds).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+  const text = [
+    `Your Lagsmith Pro trial ends on ${day}.`,
+    ``,
+    `After that, Lagsmith carries on as Free: you can still watch apps, see their last 50 requests and slow them down with the Edge preset.`,
+    ``,
+    `The other presets, custom speeds, Airplane Mode and failures, failing and mocking endpoints, automation and the MCP server need Pro. Anything you set up with them is kept, and works again as soon as you upgrade.`,
+    ``,
+    `Lagsmith Pro is a one-time purchase, with a year of updates: ${SITE}/buy`,
+    ``,
+    `You asked for this reminder in Lagsmith. It's the only one we'll send, and we've now deleted your address from our reminder list. Questions: ${SUPPORT}`,
+  ].join('\n');
+  const html = `<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#0f1a2b;max-width:560px;margin:0 auto;padding:24px">
+<p><img src="${SITE}/icon-256.png" width="56" height="56" alt="Lagsmith"></p>
+<h1 style="font-size:22px">Your Lagsmith Pro trial ends on ${escape(day)}</h1>
+<p style="font-size:15px">After that, Lagsmith carries on as Free: you can still watch apps, see their last 50 requests and slow them down with the Edge preset.</p>
+<p style="font-size:15px">The other presets, custom speeds, Airplane Mode and failures, failing and mocking endpoints, automation and the MCP server need Pro. Anything you set up with them is kept, and works again as soon as you upgrade.</p>
+<p><a href="${SITE}/buy" style="display:inline-block;background:#5ce6ff;color:#0f1a2b;font-weight:600;text-decoration:none;padding:12px 20px;border-radius:10px">Get Lagsmith Pro</a></p>
+<p style="color:#4d5b70;font-size:14px">A one-time purchase, with a year of updates.</p>
+<p style="color:#4d5b70;font-size:13px">You asked for this reminder in Lagsmith. It’s the only one we’ll send, and we’ve now deleted your address from our reminder list. Questions: <a href="mailto:${SUPPORT}">${SUPPORT}</a></p>
+</body></html>`;
+  return { subject: `Your Lagsmith Pro trial ends on ${day}`, text, html };
+}
+
+/** Sends reminders that are due, and forgets addresses that no longer need one. */
+async function sendDueReminders() {
+  const now = Date.now();
+  const buyers = new Set(Object.values(orders).filter((o) => o.status === 'paid').map((o) => o.email.toLowerCase()));
+  let changed = false;
+  for (const [address, reminder] of Object.entries(reminders)) {
+    if (buyers.has(address) || (reminder.sentAt && now - Date.parse(reminder.sentAt) > KEEP_AFTER_SENT_MS)
+        || (!reminder.sentAt && now > reminder.trialEnds + KEEP_AFTER_SENT_MS)) {
+      delete reminders[address];
+      changed = true;
+      continue;
+    }
+    if (reminder.sentAt || now < reminder.trialEnds - REMIND_BEFORE_MS || now > reminder.trialEnds) continue;
+    try {
+      if (await sendMail(reminder.email, reminderEmail(reminder.trialEnds))) {
+        reminder.sentAt = new Date().toISOString();
+        changed = true;
+        log('trial reminder sent');
+      }
+    } catch (err) {
+      log(`trial reminder failed: ${err.message}`);
+    }
+  }
+  if (changed) await saveReminders();
+}
+
 // ---------- Rate limiting for lost-key requests ----------
 
 const hits = new Map();
@@ -474,6 +555,22 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true });
     }
 
+    if (req.method === 'POST' && url.pathname === '/api/trial-reminder') {
+      const body = JSON.parse((await readBody(req, 10_000)) || '{}');
+      const address = String(body.email ?? '').trim().toLowerCase();
+      const trialEnds = Number(body.trialEnds) * 1000;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) || address.length > 254) return json(res, 400, { error: 'invalid email' });
+      // A trial lasts 14 days, so its end is at most two weeks away.
+      if (!Number.isFinite(trialEnds) || trialEnds < Date.now() || trialEnds > Date.now() + 15 * 86_400_000) {
+        return json(res, 400, { error: 'invalid trial end' });
+      }
+      if (limited(`reminder-ip:${clientIp(req)}`, 5, 3600_000)) return json(res, 429, { error: 'too many requests' });
+      reminders[address] = { email: address, trialEnds, createdAt: new Date().toISOString(), sentAt: null };
+      await saveReminders();
+      log('trial reminder saved');
+      return json(res, 200, { ok: true });
+    }
+
     json(res, 404, { error: 'not found' });
   } catch (err) {
     log(`${req.method} ${url.pathname} failed: ${err.message}`);
@@ -482,7 +579,10 @@ const server = http.createServer(async (req, res) => {
 });
 
 await loadOrders();
+await loadReminders();
 const stripeMode = env.STRIPE_SECRET_KEY?.startsWith('sk_live_') || env.STRIPE_SECRET_KEY?.startsWith('rk_live_') ? 'live' : 'test';
 server.listen(PORT, '127.0.0.1', () => log(`licence service on 127.0.0.1:${PORT} (stripe: ${stripeEnabled() ? stripeMode : 'off'}, paddle: ${env.PADDLE_API_KEY ? env.PADDLE_ENV ?? 'sandbox' : 'off'})`));
 deliverPending();
 setInterval(deliverPending, 10 * 60_000);
+sendDueReminders();
+setInterval(() => sendDueReminders().catch((err) => log(`reminders failed: ${err.message}`)), 10 * 60_000);

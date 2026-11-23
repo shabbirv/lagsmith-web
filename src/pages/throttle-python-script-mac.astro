@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+import { appSchema, faqSchema, howToSchema } from '../lib';
+import { SITE } from '../config';
+
+const steps = [
+  { name: 'Install Lagsmith and the command', text: 'Install Lagsmith and allow its network extension. Then turn on Allow Automation in its menu bar menu, and click Install Command Line Tool… in the Automation Guide.' },
+  { name: 'Put lagsmith run in front of the command', text: 'Run lagsmith run --preset 3G -- python3 your_script.py. Any command works: python3, uv run, poetry run, pytest or a shell script.' },
+  { name: 'Watch it cope', text: 'The script and everything it starts get the slow or broken network. Other Python processes, your terminal and the rest of your Mac stay at full speed.' },
+  { name: 'Done', text: 'When the command ends, its rule is removed and nothing stays throttled.' },
+];
+
+const faq = [
+  { q: 'How do I simulate a slow network for a Python script on Mac?', a: 'Run it under <code>lagsmith run</code>, for example <code>lagsmith run --preset 3G -- python3 fetch.py</code>. Only that script and the processes it starts are slowed down, and the network goes back to normal when it ends.' },
+  { q: 'Do I need to set HTTPS_PROXY or install a certificate?', a: 'No. Lagsmith slows down the script’s real connections with a macOS network extension, so there is no proxy to configure and nothing to add to certifi, <code>REQUESTS_CA_BUNDLE</code> or <code>SSL_CERT_FILE</code>. It works the same for requests, httpx, aiohttp, urllib and anything else that opens a socket.' },
+  { q: 'Does it work with uv, pyenv, conda and virtual environments?', a: 'Yes. <code>lagsmith run</code> follows the process it starts and its children, not a particular Python, so it doesn’t matter which interpreter runs the script or where it’s installed.' },
+  { q: 'Can I make only my API fail, or time out?', a: 'Yes. Add <code>--hosts api.example.com</code> to limit the rule to some hosts, and <code>--failure timeout</code>, <code>refuse</code>, <code>drop</code> or <code>outages</code> to break those connections instead of slowing them. <a href="/docs/failures">Failure modes</a>.' },
+  { q: 'Will it slow down my AI coding agent or other Python tools?', a: 'No. Unlike Network Link Conditioner, which slows the whole Mac, only the command you run is affected. Jupyter, pip, language servers and the agent driving your tests keep their full speed.' },
+  { q: 'Is it free?', a: SITE.beta
+    ? 'Lagsmith is free during the beta, with everything unlocked.'
+    : '<code>lagsmith run</code> is part of Lagsmith Pro, which the 14-day trial includes. After the trial, the free version still slows down Mac apps with the Edge preset. <a href="/pricing">Pricing</a>.' },
+];
+---
+<Base
+  title="Simulate a slow network for a Python script on Mac"
+  description="Test how a Python script, API client or pytest suite copes with 3G, high latency, packet loss and timeouts on your Mac: one command, no proxy settings, no certificates."
+  breadcrumbs={[{ name: 'Throttle a Python script', href: '/throttle-python-script-mac' }]}
+  jsonLd={[
+    appSchema(),
+    howToSchema('How to slow down a Python script on a Mac with Lagsmith', 'Give one script, and only that script, a slow or failing network.', steps),
+    faqSchema(faq),
+  ]}
+>
+  <section class="page-head">
+    <div class="wrap narrow">
+      <h1>Slow down a Python script’s network on your Mac</h1>
+      <p class="lead">Your script talks to an API that answers in 40 ms on your desk. In production it runs over a flaky connection, an overloaded upstream or a VPN on the other side of the world. Run it on 3G, with packet loss or with timeouts, without touching its code and without slowing anything else on your Mac.</p>
+      <CodeBlock label="One script, on 3G" code="lagsmith run --preset 3G -- python3 fetch.py" />
+      <div class="actions"><DownloadButton /></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 24px">
+    <div class="wrap narrow">
+      <h2 style="margin-top: 0">Why test a script on a bad network</h2>
+      <p>Code that calls the network is usually written and tested on a fast, reliable connection, so the slow paths never run. A bad network is where these show up:</p>
+      <ul>
+        <li><strong>Missing timeouts.</strong> <code>requests</code> waits forever by default, so a script that never sets <code>timeout=</code> hangs instead of failing.</li>
+        <li><strong>Retries that don’t retry,</strong> or retry so fast that they give up before the network comes back.</li>
+        <li><strong>Timeouts that are too tight</strong> for a large upload on a slow link.</li>
+        <li><strong>Half-finished work</strong> when a connection drops in the middle of a download or a batch of writes.</li>
+      </ul>
+
+      <h2>The usual ways, and their catches</h2>
+      <ul>
+        <li><strong>Mocking in tests</strong> (<code>responses</code>, <code>respx</code>, <code>unittest.mock</code>) is fast and repeatable, but it fakes the library rather than the network, so real connection set-up, TLS and slow reads never happen.</li>
+        <li><strong>A proxy</strong> like mitmproxy, Charles or Proxyman can throttle, but the script has to be pointed at it with <code>HTTPS_PROXY</code>, and HTTPS needs the proxy’s certificate in certifi, <code>REQUESTS_CA_BUNDLE</code> or <code>SSL_CERT_FILE</code>. Libraries that ignore proxy settings aren’t covered at all.</li>
+        <li><strong>Toxiproxy</strong> is great between services you run yourself, but you change the address your code connects to, and it can’t sit in front of a third-party API over HTTPS without more set-up.</li>
+        <li><strong>Network Link Conditioner</strong> slows down the real network, but for the whole Mac: pip, Jupyter, your editor and the AI agent running your tests crawl too. <a href="/network-link-conditioner">How it works</a>.</li>
+      </ul>
+
+      <h2>One command, only that command</h2>
+      <p><code>lagsmith run</code> starts your command with its own network conditions. Lagsmith’s network extension sees which process opens each connection, so it slows down the command and the processes it starts, and nothing else.</p>
+      <CodeBlock label="Slow, lossy and far away" code="lagsmith run --down 256 --up 64 --latency 800 --loss 2 -- uv run sync.py" />
+      <CodeBlock label="Only your API times out; everything else works" code="lagsmith run --failure timeout --hosts api.example.com -- pytest tests/test_client.py" />
+      <CodeBlock label="Connections cut after 3 seconds, mid-download" code="lagsmith run --failure drop --after 3 -- python3 download.py" />
+      <ul>
+        <li><strong>Any Python:</strong> Homebrew, python.org, uv, pyenv, conda and virtual environments, because it follows the process, not the interpreter.</li>
+        <li><strong>Any library:</strong> requests, httpx, aiohttp, urllib, boto3 and gRPC all open ordinary connections, so there’s nothing to configure in code.</li>
+        <li><strong>No proxy settings, no certificates.</strong> HTTPS stays end to end.</li>
+        <li><strong>Back to normal when it ends.</strong> The rule is removed when the command exits, even after Ctrl-C, and the command’s exit code is passed through, so it fits test runs and CI.</li>
+        <li><strong>See what happened:</strong> the run shows up in Lagsmith’s window, with each connection the script made.</li>
+      </ul>
+      <p>Presets are Edge, 3G, DSL, LTE, WiFi, Very Bad Network and 100% Loss, or set <code>--down</code> and <code>--up</code> (kbps), <code>--latency</code> and <code>--jitter</code> (ms) and <code>--loss</code> (%). Failures are <code>timeout</code>, <code>refuse</code> (with <code>--percent</code>), <code>drop</code> (with <code>--after</code>) and <code>outages</code> (with <code>--online</code> and <code>--offline</code>). <a href="/docs/automation">Every option</a>.</p>
+
+      <h2>How to slow down a Python script with Lagsmith</h2>
+      <ol class="steps">
+        {steps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}
+      </ol>
+      <p>Processes that detach themselves to run in the background, like a daemon that forks away from the command, aren’t followed. For a long-running service, add its app or executable in Lagsmith’s window instead.</p>
+
+      <h2>In pytest and CI</h2>
+      <p>Wrap the whole run, or just the tests that talk to the network:</p>
+      <CodeBlock label="The network tests on a very bad network" code="lagsmith run --preset 'Very Bad Network' -- pytest -m network" />
+      <p>Because only the command is affected, the test runner’s own downloads, your dev server and any coding agent driving the tests stay at full speed. Agents like Claude Code, Cursor and Codex can run <code>lagsmith run</code> themselves, or use Lagsmith’s <a href="/ai-agents-network-testing">MCP server</a>.</p>
+
+      <Faq items={faq} />
+    </div>
+  </section>
+
+  <Cta />
+</Base>

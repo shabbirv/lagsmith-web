@@ -24,6 +24,7 @@ const sections: [string, [string, string, string][]][] = [
     ['/simulate-airplane-mode-ios-simulator', 'Airplane Mode in the iOS Simulator', 'The simulator has no Airplane Mode switch: four ways to test offline, and Airplane Mode for one simulator app with NWPathMonitor and SCNetworkReachability reporting no network.'],
     ['/throttle-app-bandwidth-mac', 'Throttle one Mac app', 'Per-app bandwidth, latency and packet loss on macOS.'],
     ['/throttle-chrome-mac', 'Throttle Chrome on Mac', 'Test a website on a slow or broken connection: Chrome DevTools throttling, its limits, and slowing down the whole browser (or only some hosts) with Lagsmith, including from Playwright and CI.'],
+    ['/throttle-python-script-mac', 'Throttle a Python script on Mac', 'Run one command, such as a Python script or pytest, on 3G, with packet loss or with timeouts using lagsmith run: no proxy settings or certificates, and nothing else on the Mac slowed down.'],
     ['/simulate-slow-network', 'Simulate a slow network', '3G, Edge, high latency, jitter and packet loss for one app.'],
     ['/mock-api-ios-simulator', 'Mock or fail an API endpoint', 'Fail, delay or mock one endpoint in a simulator app without a proxy.'],
     ['/ai-agents-network-testing', 'AI agents and MCP', 'Claude Code, Cursor and Codex control the app under test’s network through Lagsmith’s MCP server, without slowing down the agent.'],

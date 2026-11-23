@@ -7,6 +7,9 @@ import Docs from '../../layouts/Docs.astro';
   <p>Set an app’s network from a UI test before launching the app, so each test starts on the conditions it needs.</p>
   <h2>Command line: <code>lagsmith</code></h2>
   <p>The <code>lagsmith</code> command line tool controls Lagsmith from the terminal and from CI scripts.</p>
+  <p><code>lagsmith run</code> runs one command with its own network: only that command and the processes it starts are affected, and its rule is removed when it ends. It takes the same options as <code>lagsmith set</code>, without <code>--app</code>. <a href="/throttle-python-script-mac">Slowing down a Python script</a>.</p>
+  <pre><code>lagsmith run --preset 3G -- python3 fetch.py
+lagsmith run --failure timeout --hosts api.example.com -- pytest</code></pre>
   <h2>URL scheme: <code>lagsmith://</code></h2>
   <p>Open <code>lagsmith://</code> links to control Lagsmith from anywhere that can open a URL.</p>
   <h2>HTTP API</h2>
